@@ -30,10 +30,10 @@ class MlKitOcrEngine(private val context: Context) : OcrEngine {
     private val recognizersDelegate = lazy {
         listOf(
             TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS),
-            TextRecognition.getClient(ChineseTextRecognizerOptions()),
-            TextRecognition.getClient(JapaneseTextRecognizerOptions()),
-            TextRecognition.getClient(KoreanTextRecognizerOptions()),
-            TextRecognition.getClient(DevanagariTextRecognizerOptions())
+            TextRecognition.getClient(ChineseTextRecognizerOptions.Builder().build()),
+            TextRecognition.getClient(JapaneseTextRecognizerOptions.Builder().build()),
+            TextRecognition.getClient(KoreanTextRecognizerOptions.Builder().build()),
+            TextRecognition.getClient(DevanagariTextRecognizerOptions.Builder().build())
         )
     }
 
