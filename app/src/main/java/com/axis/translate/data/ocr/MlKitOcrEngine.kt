@@ -6,15 +6,15 @@ import android.graphics.RectF
 import com.axis.translate.domain.OcrEngine
 import com.axis.translate.domain.OcrRegion
 import com.axis.translate.domain.OcrResult
-import com.google.mlkit.vision.chinese.ChineseTextRecognizerOptions
 import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.devanagari.DevanagariTextRecognizerOptions
-import com.google.mlkit.vision.japanese.JapaneseTextRecognizerOptions
-import com.google.mlkit.vision.korean.KoreanTextRecognizerOptions
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
-import com.google.mlkit.vision.text.TextRecognizerOptions
+import com.google.mlkit.vision.text.chinese.ChineseTextRecognizerOptions
+import com.google.mlkit.vision.text.devanagari.DevanagariTextRecognizerOptions
+import com.google.mlkit.vision.text.japanese.JapaneseTextRecognizerOptions
+import com.google.mlkit.vision.text.korean.KoreanTextRecognizerOptions
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
 

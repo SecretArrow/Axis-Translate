@@ -2,7 +2,6 @@ package com.axis.translate.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -85,8 +84,7 @@ fun EmptyState(icon: ImageVector, title: String, subtitle: String = "", modifier
 @Composable
 fun LoadingOverlay(visible: Boolean, label: String = "Loading…", modifier: Modifier = Modifier) {
     if (!visible) return
-    // Typed as InteractionSource? so the non-deprecated clickable overload resolves.
-    val interactionSource: InteractionSource? = remember { MutableInteractionSource() }
+    val interactionSource = remember { MutableInteractionSource() }
     Box(
         modifier = modifier
             .fillMaxSize()

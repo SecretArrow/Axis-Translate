@@ -8,6 +8,7 @@ import android.graphics.PixelFormat
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.IBinder
+import android.content.Context
 import android.provider.Settings
 import android.text.TextUtils
 import android.view.Gravity

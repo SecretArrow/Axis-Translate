@@ -81,18 +81,10 @@ class AndroidSpeechRecognizer : SpeechRecognitionHelper {
             "Voice recognition service error."
         SpeechRecognizer.ERROR_TOO_MANY_REQUESTS ->
             "Too many voice recognition requests. Try again later."
-        SpeechRecognizer.ERROR_LANGUAGE_CHECK_FAILED ->
-            "Could not verify offline language support."
         SpeechRecognizer.ERROR_LANGUAGE_NOT_SUPPORTED ->
             "This language is not supported for voice input."
         SpeechRecognizer.ERROR_LANGUAGE_UNAVAILABLE ->
             "The requested language is unavailable for voice recognition."
-        SpeechRecognizer.ERROR_CANNOT_CHECK_SUPPORTED ->
-            "Could not check offline language support."
-        SpeechRecognizer.ERROR_CANNOT_LISTEN_TO_SOCKET_EVENTS ->
-            "Voice recognition connection error."
-        SpeechRecognizer.ERROR_LANGUAGE_DETECTION_FAILED ->
-            "Automatic language detection failed."
         else ->
             "Voice recognition failed. Please try again."
     }

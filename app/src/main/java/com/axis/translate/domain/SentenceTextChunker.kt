@@ -49,7 +49,7 @@ class SentenceTextChunker : TextChunker {
 
         // Split into paragraphs on blank lines. Paragraphs are joined inside a
         // chunk with "\n\n", mirroring the chunk join used on reassembly.
-        val paragraphs = trimmed.split(paragraphBreak)
+        val paragraphs = trimmed.split(PARAGRAPH_BREAK)
 
         for (paragraph in paragraphs) {
             val sentences = splitSentences(paragraph)

@@ -61,16 +61,15 @@ class BatchTranslationService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        ServiceCompat.startForeground(
-            service = this,
-            id = NOTIFICATION_ID,
-            notification = buildNotification(text = "Starting batch translation…", done = 0, total = 0),
-            foregroundServiceType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
-            } else {
-                0
-            }
-        )
+        val notification =
+            buildNotification(text = "Starting batch translation…", done = 0, total = 0)
+        val serviceType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+        } else {
+            0
+        }
+        // Java API: positional arguments only.
+        ServiceCompat.startForeground(this, NOTIFICATION_ID, notification, serviceType)
 
         if (runJob?.isActive == true) {
             // Already running — the foreground state above simply refreshed

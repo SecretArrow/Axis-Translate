@@ -251,6 +251,7 @@ fun ModelManagerScreen(modifier: Modifier = Modifier) {
 }
 
 /** One downloadable model from the manifest, with install state + progress. */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ModelEntryCard(entry: ModelManifestEntry, installedId: String?, busy: Boolean, progress: ModelProgress?, onInstall: () -> Unit) {
     Card(modifier = Modifier.fillMaxWidth()) {

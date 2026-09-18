@@ -20,11 +20,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.MoreVert
 import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.automirrored.filled.SwapVert
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Forum
@@ -122,7 +122,7 @@ fun ConversationScreen(modifier: Modifier = Modifier) {
                     },
                     leadingIcon = {
                         Icon(
-                            Icons.AutoMirrored.Filled.SwapVert,
+                            Icons.Filled.SwapVert,
                             contentDescription = null,
                             modifier = Modifier.size(AssistChipDefaults.IconSize)
                         )
@@ -302,7 +302,7 @@ private fun TurnCard(
                             modifier = Modifier.size(24.dp)
                         ) {
                             Icon(
-                                Icons.AutoMirrored.Filled.MoreVert,
+                                Icons.Filled.MoreVert,
                                 contentDescription = "More actions",
                                 modifier = Modifier.size(16.dp)
                             )

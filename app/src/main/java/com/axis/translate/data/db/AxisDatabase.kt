@@ -40,7 +40,7 @@ abstract class AxisDatabase : RoomDatabase() {
             )
                 .fallbackToDestructiveMigration()
                 .build()
-                .also { database -> INSTANCE = database }
+                .also { database -> instance = database }
         }
     }
 }
