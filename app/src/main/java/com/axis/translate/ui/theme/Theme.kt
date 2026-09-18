@@ -31,11 +31,7 @@ val AxisShapes = Shapes(
  * mode is [ThemeMode.DARK] or the system is in dark mode.
  */
 @Composable
-fun AxisTheme(
-    themeMode: ThemeMode = ThemeMode.SYSTEM,
-    dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
-) {
+fun AxisTheme(themeMode: ThemeMode = ThemeMode.SYSTEM, dynamicColor: Boolean = true, content: @Composable () -> Unit) {
     val darkTheme = when (themeMode) {
         ThemeMode.DARK -> true
         ThemeMode.LIGHT -> false

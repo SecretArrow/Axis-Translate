@@ -45,12 +45,8 @@ class HistoryRepositoryImpl(private val dao: HistoryDao) : HistoryRepository {
 
     override suspend fun setFavorite(id: Long, favorite: Boolean) = dao.setFavorite(id, favorite)
 
-    override suspend fun setFavoriteByContent(
-        sourceCode: String,
-        targetCode: String,
-        sourceText: String,
-        favorite: Boolean
-    ) = dao.setFavoriteByContent(sourceCode, targetCode, sourceText, favorite)
+    override suspend fun setFavoriteByContent(sourceCode: String, targetCode: String, sourceText: String, favorite: Boolean) =
+        dao.setFavoriteByContent(sourceCode, targetCode, sourceText, favorite)
 
     override suspend fun clearFavoriteFlags() = dao.clearFavoriteFlags()
 
@@ -83,8 +79,7 @@ class FavoritesRepositoryImpl(private val dao: FavoriteDao) : FavoritesRepositor
 
     override suspend fun delete(id: Long) = dao.deleteById(id)
 
-    override suspend fun deleteByContent(sourceCode: String, targetCode: String, sourceText: String) =
-        dao.deleteByContent(sourceCode, targetCode, sourceText)
+    override suspend fun deleteByContent(sourceCode: String, targetCode: String, sourceText: String) = dao.deleteByContent(sourceCode, targetCode, sourceText)
 
     override suspend fun clear() = dao.deleteAll()
 }

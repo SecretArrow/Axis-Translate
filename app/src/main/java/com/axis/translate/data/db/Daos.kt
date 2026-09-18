@@ -44,12 +44,7 @@ interface HistoryDao {
         "UPDATE history SET isFavorite = :favorite " +
             "WHERE sourceCode = :sourceCode AND targetCode = :targetCode AND sourceText = :sourceText"
     )
-    suspend fun setFavoriteByContent(
-        sourceCode: String,
-        targetCode: String,
-        sourceText: String,
-        favorite: Boolean
-    )
+    suspend fun setFavoriteByContent(sourceCode: String, targetCode: String, sourceText: String, favorite: Boolean)
 
     /** Bulk star reset used when the user clears the favorites list in Settings. */
     @Query("UPDATE history SET isFavorite = 0")

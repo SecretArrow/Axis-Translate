@@ -409,13 +409,7 @@ private fun InstalledModelCard(
 /** One downloadable model from the manifest, with install state + progress. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ModelEntryCard(
-    entry: ModelManifestEntry,
-    installedId: String?,
-    busy: Boolean,
-    progress: ModelProgress?,
-    onInstall: () -> Unit
-) {
+private fun ModelEntryCard(entry: ModelManifestEntry, installedId: String?, busy: Boolean, progress: ModelProgress?, onInstall: () -> Unit) {
     OutlinedCard(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large
