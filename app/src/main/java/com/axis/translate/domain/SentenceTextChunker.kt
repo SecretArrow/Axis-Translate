@@ -103,11 +103,11 @@ class SentenceTextChunker : TextChunker {
             val c = paragraph[i]
             sb.append(c)
             when {
-                cjkTerminators.indexOf(c) >= 0 -> {
+                CJK_TERMINATORS.indexOf(c) >= 0 -> {
                     pieces.add(sb.toString())
                     sb.setLength(0)
                 }
-                latinTerminators.indexOf(c) >= 0 -> {
+                LATIN_TERMINATORS.indexOf(c) >= 0 -> {
                     val next = i + 1
                     if (next >= paragraph.length || paragraph[next].isWhitespace()) {
                         pieces.add(sb.toString())
@@ -161,8 +161,8 @@ class SentenceTextChunker : TextChunker {
 
     private companion object {
         /** One or more blank lines separate paragraphs. */
-        val paragraphBreak = Regex("\n\n+")
-        const val latinTerminators = ".!?…"
-        const val cjkTerminators = "。！？"
+        val PARAGRAPH_BREAK = Regex("\n\n+")
+        const val LATIN_TERMINATORS = ".!?…"
+        const val CJK_TERMINATORS = "。！？"
     }
 }

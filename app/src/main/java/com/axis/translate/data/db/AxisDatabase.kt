@@ -30,10 +30,10 @@ abstract class AxisDatabase : RoomDatabase() {
         private const val DATABASE_NAME = "axis.db"
 
         @Volatile
-        private var INSTANCE: AxisDatabase? = null
+        private var instance: AxisDatabase? = null
 
-        fun get(context: Context): AxisDatabase = INSTANCE ?: synchronized(this) {
-            INSTANCE ?: Room.databaseBuilder(
+        fun get(context: Context): AxisDatabase = instance ?: synchronized(this) {
+            instance ?: Room.databaseBuilder(
                 context.applicationContext,
                 AxisDatabase::class.java,
                 DATABASE_NAME

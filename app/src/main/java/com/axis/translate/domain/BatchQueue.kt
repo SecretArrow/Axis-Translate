@@ -32,11 +32,11 @@ class BatchQueue {
     private val _items = MutableStateFlow<List<TaskState>>(emptyList())
     val items: StateFlow<List<TaskState>> = _items.asStateFlow()
 
-    private val _running = MutableStateFlow(false)
-    val isRunning: StateFlow<Boolean> = _running.asStateFlow()
+    private val runningState = MutableStateFlow(false)
+    val isRunning: StateFlow<Boolean> = runningState.asStateFlow()
 
-    private val _paused = MutableStateFlow(false)
-    val isPaused: StateFlow<Boolean> = _paused.asStateFlow()
+    private val pausedState = MutableStateFlow(false)
+    val isPaused: StateFlow<Boolean> = pausedState.asStateFlow()
 
     private val cancelRequested = AtomicBoolean(false)
     private var runJob: Job? = null
@@ -67,11 +67,11 @@ class BatchQueue {
     }
 
     fun pause() {
-        _paused.value = true
+        pausedState.value = true
     }
 
     fun resume() {
-        _paused.value = false
+        pausedState.value = false
     }
 
     fun cancel() {
@@ -86,9 +86,9 @@ class BatchQueue {
      */
     suspend fun runAll(translate: suspend (BatchTask) -> String): Result<Int> {
         mutex.withLock {
-            if (_running.value) return Result.failure(IllegalStateException("already running"))
+            if (runningState.value) return Result.failure(IllegalStateException("already running"))
             cancelRequested.set(false)
-            _running.value = true
+            runningState.value = true
             var completed = 0
             try {
                 while (true) {
@@ -112,13 +112,13 @@ class BatchQueue {
                         }
                     }
                     // cooperative pause
-                    while (_paused.value && !cancelRequested.get()) {
+                    while (pausedState.value && !cancelRequested.get()) {
                         kotlinx.coroutines.delay(PAUSE_POLL_MS)
                     }
                 }
                 return Result.success(completed)
             } finally {
-                _running.value = false
+                runningState.value = false
             }
         }
     }
