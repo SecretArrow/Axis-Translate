@@ -104,7 +104,7 @@ jobs:
           fetch-depth: 1
 
       - name: Cache desktop build (llama.cpp + SDL2 sources/objects)
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: desktop/build
           key: desktop-release-build-${{ runner.os }}-${{ hashFiles('desktop/CMakeLists.txt', 'desktop/src/*.c') }}
