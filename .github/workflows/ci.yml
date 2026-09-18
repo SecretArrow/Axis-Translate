@@ -94,14 +94,14 @@ jobs:
 
       - name: Upload debug APK
         if: ${{ steps.ktlint_autofix.outputs.pushed != 'true' && success() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: app-debug-apk
           path: android/app/build/outputs/apk/debug/*.apk
 
       - name: Upload test/lint reports (on failure)
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ci-failure-reports
           path: android/app/build/reports/**
@@ -166,7 +166,7 @@ jobs:
 
       - name: Upload binary artifact
         if: ${{ steps.shortcircuit.outputs.skip != 'true' && success() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: desktop-binaries-${{ runner.os }}
           path: |
