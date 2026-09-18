@@ -44,7 +44,7 @@ jobs:
           java-version: "17"
 
       - name: Set up Gradle (with caching)
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
       # Splits configured in android/app/build.gradle.kts: arm64-v8a,
       # armeabi-v7a, x86, x86_64 — no universal APK (-Paxis.splitApks=true).
