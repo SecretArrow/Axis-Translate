@@ -190,9 +190,12 @@ class LibraryDaoTest {
         assertNotNull(historyRepository.get(historyId))
         assertTrue(historyRepository.get(historyId)!!.isFavorite)
 
-        // Un-star via the favorites side: history flags must follow.
+        // Un-star via the favorites side (repository pair, as FavoritesViewModel
+        // drives it): both tables must settle on un-starred.
         favoritesRepository.deleteByContent("en", "id", "kopi")
+        historyRepository.setFavoriteByContent("en", "id", "kopi", favorite = false)
         assertTrue(!historyRepository.get(historyId)!!.isFavorite)
+        assertTrue(favoritesRepository.observe().first().isEmpty())
 
         // Re-star and clear the whole favorites list: flags reset again.
         historyRepository.setFavoriteByContent("en", "id", "kopi", true)
