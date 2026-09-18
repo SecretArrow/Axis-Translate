@@ -45,7 +45,13 @@ android {
         resourceConfigurations += listOf("en")
 
         ndk {
-            abiFilters.addAll(axisAbis)
+            // AGP forbids ndk.abiFilters and splits.abi being set at the same
+            // time: when split APKs are enabled the splits block owns the ABI
+            // list; otherwise abiFilters controls the native build scope
+            // (e.g. -Paxis.abis=x86_64 for emulator e2e runs).
+            if (!axisSplitApks) {
+                abiFilters.addAll(axisAbis)
+            }
         }
 
         externalNativeBuild {
