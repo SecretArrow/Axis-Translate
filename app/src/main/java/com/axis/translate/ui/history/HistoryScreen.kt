@@ -83,18 +83,18 @@ fun HistoryScreen(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .statusBarsPadding(),
+            .statusBarsPadding()
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 16.dp, end = 8.dp, top = 12.dp, bottom = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "History",
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f)
             )
             if (state.items.isNotEmpty()) {
                 IconButton(onClick = { showClearDialog = true }) {
@@ -118,7 +118,7 @@ fun HistoryScreen(modifier: Modifier = Modifier) {
                     }
                 }
             },
-            singleLine = true,
+            singleLine = true
         )
 
         Spacer(Modifier.height(12.dp))
@@ -128,18 +128,18 @@ fun HistoryScreen(modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .horizontalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             FilterChip(
                 selected = state.filter == null,
                 onClick = { vm.setFilter(null) },
-                label = { Text("All") },
+                label = { Text("All") }
             )
             InputType.entries.forEach { type ->
                 FilterChip(
                     selected = state.filter == type,
                     onClick = { vm.setFilter(if (state.filter == type) null else type) },
-                    label = { Text(type.displayLabel()) },
+                    label = { Text(type.displayLabel()) }
                 )
             }
         }
@@ -149,12 +149,12 @@ fun HistoryScreen(modifier: Modifier = Modifier) {
         Box(
             modifier = Modifier
                 .weight(1f)
-                .fillMaxWidth(),
+                .fillMaxWidth()
         ) {
             when {
                 state.items.isEmpty() && state.loading -> Box(
                     modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
+                    contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator()
                 }
@@ -165,14 +165,14 @@ fun HistoryScreen(modifier: Modifier = Modifier) {
                         icon = Icons.Outlined.History,
                         title = if (filtered) "No matching translations" else "No translations yet",
                         subtitle = if (filtered) "Try a different search or filter." else "Start translating!",
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
 
                 else -> LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(state.items, key = { it.id }) { item ->
                         HistoryItemCard(
@@ -184,7 +184,7 @@ fun HistoryScreen(modifier: Modifier = Modifier) {
                             onUseAsInput = {
                                 PendingInput.sharedText.value = item.sourceText
                                 AppNavigator.navigate(Routes.HOME)
-                            },
+                            }
                         )
                     }
                 }
@@ -201,7 +201,7 @@ fun HistoryScreen(modifier: Modifier = Modifier) {
                 vm.clearAll()
                 showClearDialog = false
             },
-            onDismiss = { showClearDialog = false },
+            onDismiss = { showClearDialog = false }
         )
     }
 }
@@ -215,7 +215,7 @@ private fun HistoryItemCard(
     onDelete: () -> Unit,
     onCopy: () -> Unit,
     onShare: () -> Unit,
-    onUseAsInput: () -> Unit,
+    onUseAsInput: () -> Unit
 ) {
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
@@ -225,7 +225,7 @@ private fun HistoryItemCard(
             } else {
                 false
             }
-        },
+        }
     )
     var menuOpen by remember { mutableStateOf(false) }
 
@@ -238,31 +238,31 @@ private fun HistoryItemCard(
                     .fillMaxSize()
                     .background(
                         color = MaterialTheme.colorScheme.errorContainer,
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(12.dp)
                     )
                     .padding(horizontal = 24.dp),
                 horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Delete,
                     contentDescription = "Delete",
-                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                    tint = MaterialTheme.colorScheme.onErrorContainer
                 )
             }
-        },
+        }
     ) {
         Card(modifier = Modifier.fillMaxWidth()) {
             Row(
                 modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 16.dp),
-                verticalAlignment = Alignment.Top,
+                verticalAlignment = Alignment.Top
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = languageLine(item.sourceCode, item.targetCode),
                         style = MaterialTheme.typography.labelSmall,
                         fontFamily = FontFamily.Monospace,
-                        color = MaterialTheme.colorScheme.secondary,
+                        color = MaterialTheme.colorScheme.secondary
                     )
                     Spacer(Modifier.height(6.dp))
                     Text(
@@ -270,20 +270,20 @@ private fun HistoryItemCard(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 3,
-                        overflow = TextOverflow.Ellipsis,
+                        overflow = TextOverflow.Ellipsis
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
                         text = item.translatedText,
                         style = MaterialTheme.typography.titleSmall,
                         maxLines = 3,
-                        overflow = TextOverflow.Ellipsis,
+                        overflow = TextOverflow.Ellipsis
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
                         text = "${item.inputType.displayLabel()} • ${AndroidUtils.formatDate(item.timestamp)}",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 IconButton(onClick = onToggleFavorite) {
@@ -298,7 +298,7 @@ private fun HistoryItemCard(
                             MaterialTheme.colorScheme.primary
                         } else {
                             MaterialTheme.colorScheme.onSurfaceVariant
-                        },
+                        }
                     )
                 }
                 Box {
@@ -307,7 +307,7 @@ private fun HistoryItemCard(
                     }
                     DropdownMenu(
                         expanded = menuOpen,
-                        onDismissRequest = { menuOpen = false },
+                        onDismissRequest = { menuOpen = false }
                     ) {
                         DropdownMenuItem(
                             text = { Text("Copy") },
@@ -315,7 +315,7 @@ private fun HistoryItemCard(
                             onClick = {
                                 menuOpen = false
                                 onCopy()
-                            },
+                            }
                         )
                         DropdownMenuItem(
                             text = { Text("Share") },
@@ -323,7 +323,7 @@ private fun HistoryItemCard(
                             onClick = {
                                 menuOpen = false
                                 onShare()
-                            },
+                            }
                         )
                         DropdownMenuItem(
                             text = { Text("Use as input") },
@@ -331,7 +331,7 @@ private fun HistoryItemCard(
                             onClick = {
                                 menuOpen = false
                                 onUseAsInput()
-                            },
+                            }
                         )
                     }
                 }

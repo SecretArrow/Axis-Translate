@@ -31,16 +31,13 @@ private fun String.escapeForLike(): String = buildString {
 /** Room-backed implementation of [HistoryRepository]. */
 class HistoryRepositoryImpl(private val dao: HistoryDao) : HistoryRepository {
 
-    override fun observe(): Flow<List<HistoryItem>> =
-        dao.getAll().map { entities -> entities.map { it.toDomain() } }
+    override fun observe(): Flow<List<HistoryItem>> = dao.getAll().map { entities -> entities.map { it.toDomain() } }
 
-    override fun observeFavorites(): Flow<List<HistoryItem>> =
-        dao.observeFavorites().map { entities -> entities.map { it.toDomain() } }
+    override fun observeFavorites(): Flow<List<HistoryItem>> = dao.observeFavorites().map { entities -> entities.map { it.toDomain() } }
 
     override suspend fun get(id: Long): HistoryItem? = dao.getById(id)?.toDomain()
 
-    override suspend fun search(query: String): Flow<List<HistoryItem>> =
-        dao.search(query.escapeForLike()).map { entities -> entities.map { it.toDomain() } }
+    override suspend fun search(query: String): Flow<List<HistoryItem>> = dao.search(query.escapeForLike()).map { entities -> entities.map { it.toDomain() } }
 
     override suspend fun add(item: HistoryItem): Long = dao.insert(HistoryEntity.fromDomain(item))
 
@@ -56,11 +53,9 @@ class HistoryRepositoryImpl(private val dao: HistoryDao) : HistoryRepository {
 /** Room-backed implementation of [FavoritesRepository]. */
 class FavoritesRepositoryImpl(private val dao: FavoriteDao) : FavoritesRepository {
 
-    override fun observe(): Flow<List<FavoriteItem>> =
-        dao.getAll().map { entities -> entities.map { it.toDomain() } }
+    override fun observe(): Flow<List<FavoriteItem>> = dao.getAll().map { entities -> entities.map { it.toDomain() } }
 
-    override suspend fun search(query: String): List<FavoriteItem> =
-        dao.search(query.escapeForLike()).map { it.toDomain() }
+    override suspend fun search(query: String): List<FavoriteItem> = dao.search(query.escapeForLike()).map { it.toDomain() }
 
     override suspend fun add(item: FavoriteItem): Long = dao.insert(FavoriteEntity.fromDomain(item))
 
@@ -74,11 +69,9 @@ class FavoritesRepositoryImpl(private val dao: FavoriteDao) : FavoritesRepositor
 /** Room-backed implementation of [GlossaryRepository]. */
 class GlossaryRepositoryImpl(private val dao: GlossaryDao) : GlossaryRepository {
 
-    override fun observe(): Flow<List<GlossaryTerm>> =
-        dao.getAll().map { entities -> entities.map { it.toDomain() } }
+    override fun observe(): Flow<List<GlossaryTerm>> = dao.getAll().map { entities -> entities.map { it.toDomain() } }
 
-    override fun observeEnabled(): Flow<List<GlossaryTerm>> =
-        dao.observeEnabled().map { entities -> entities.map { it.toDomain() } }
+    override fun observeEnabled(): Flow<List<GlossaryTerm>> = dao.observeEnabled().map { entities -> entities.map { it.toDomain() } }
 
     override suspend fun add(term: GlossaryTerm): Long = dao.insert(GlossaryEntity.fromDomain(term))
 

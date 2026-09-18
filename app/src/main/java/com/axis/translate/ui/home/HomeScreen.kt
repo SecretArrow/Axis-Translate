@@ -87,7 +87,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
     }
 
     val speechLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult(),
+        ActivityResultContracts.StartActivityForResult()
     ) { result ->
         val text = container.speechRecognizer.extractResult(result.resultCode, result.data)
         if (!text.isNullOrBlank()) {
@@ -128,13 +128,13 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "Axis Translate",
                     style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f)
                 )
                 OfflineBadge()
             }
@@ -145,16 +145,16 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
                             text = "AI model is not installed.",
-                            style = MaterialTheme.typography.titleSmall,
+                            style = MaterialTheme.typography.titleSmall
                         )
                         Text(
                             text = "Download the offline translation model to get started.",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Button(onClick = { AppNavigator.navigate(Routes.MODEL) }) {
                             Text(text = "Install Model")
@@ -168,7 +168,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 target = state.target,
                 onSourceClick = { showSourcePicker = true },
                 onTargetClick = { showTargetPicker = true },
-                onSwap = vm::swap,
+                onSwap = vm::swap
             )
 
             OutlinedCard(modifier = Modifier.fillMaxWidth()) {
@@ -176,7 +176,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     OutlinedTextField(
                         value = state.input,
@@ -185,25 +185,25 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                             .fillMaxWidth()
                             .testTag("home_input"),
                         placeholder = { Text(text = "Type or paste text…") },
-                        minLines = 4,
+                        minLines = 4
                     )
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         IconButton(onClick = { pasteFromClipboard() }) {
                             Icon(
                                 imageVector = Icons.Outlined.ContentPaste,
-                                contentDescription = "Paste from clipboard",
+                                contentDescription = "Paste from clipboard"
                             )
                         }
                         IconButton(onClick = { launchVoiceInput() }) {
                             Icon(
                                 imageVector = Icons.Outlined.Mic,
-                                contentDescription = "Voice input",
+                                contentDescription = "Voice input"
                             )
                         }
                         IconButton(onClick = { AppNavigator.navigate(Routes.CAMERA) }) {
                             Icon(
                                 imageVector = Icons.Outlined.PhotoCamera,
-                                contentDescription = "Translate with camera",
+                                contentDescription = "Translate with camera"
                             )
                         }
                         Spacer(modifier = Modifier.weight(1f))
@@ -211,7 +211,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                             IconButton(onClick = { vm.onInputChange("") }) {
                                 Icon(
                                     imageVector = Icons.Outlined.Clear,
-                                    contentDescription = "Clear input",
+                                    contentDescription = "Clear input"
                                 )
                             }
                         }
@@ -223,14 +223,14 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 if (state.progress != null) {
                     LinearProgressIndicator(
                         progress = { state.progress ?: 0f },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth()
                     )
                 } else {
                     LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                 }
                 OutlinedButton(
                     onClick = vm::cancel,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(text = "Cancel")
                 }
@@ -238,13 +238,13 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
                         shape = MaterialTheme.shapes.medium,
-                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        color = MaterialTheme.colorScheme.surfaceVariant
                     ) {
                         Text(
                             text = partial,
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(12.dp),
+                            modifier = Modifier.padding(12.dp)
                         )
                     }
                 }
@@ -254,7 +254,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                     enabled = state.input.isNotBlank(),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .testTag("home_translate"),
+                        .testTag("home_translate")
                 ) {
                     Text(text = "Translate")
                 }
@@ -277,7 +277,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                     onFavorite = {
                         vm.saveFavorite()
                         showSnackbar("Saved to favorites.")
-                    },
+                    }
                 )
             }
 
@@ -288,29 +288,29 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             // Quick actions to secondary destinations that are not on the bottom bar.
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 QuickAction(
                     icon = Icons.Outlined.Forum,
                     label = "Conversation",
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f)
                 ) { AppNavigator.navigate(Routes.CONVERSATION) }
                 QuickAction(
                     icon = Icons.Outlined.Description,
                     label = "Documents",
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f)
                 ) { AppNavigator.navigate(Routes.DOCUMENTS) }
                 QuickAction(
                     icon = Icons.Outlined.Queue,
                     label = "Batch",
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f)
                 ) { AppNavigator.navigate(Routes.BATCH) }
             }
         }
 
         SnackbarHost(
             hostState = snackbarHostState,
-            modifier = Modifier.align(Alignment.BottomCenter),
+            modifier = Modifier.align(Alignment.BottomCenter)
         )
 
         if (showSourcePicker) {
@@ -328,7 +328,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 onRecentPairSelected = { pair ->
                     vm.applyRecentPair(pair)
                     showSourcePicker = false
-                },
+                }
             )
         }
 
@@ -347,7 +347,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 onRecentPairSelected = { pair ->
                     vm.applyRecentPair(pair)
                     showTargetPicker = false
-                },
+                }
             )
         }
 
@@ -355,7 +355,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
         // once progress/partial text arrives, the inline progress + Cancel take over.
         LoadingOverlay(
             visible = state.translating && state.progress == null && state.partial == null,
-            label = "Translating…",
+            label = "Translating…"
         )
     }
 }
@@ -367,58 +367,58 @@ private fun TranslationResultCard(
     onSpeak: () -> Unit,
     onCopy: () -> Unit,
     onShare: () -> Unit,
-    onFavorite: () -> Unit,
+    onFavorite: () -> Unit
 ) {
     ElevatedCard(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "Translation",
                     style = MaterialTheme.typography.titleSmall,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f)
                 )
                 detectedLabel?.let { label ->
                     Text(
                         text = "Detected: $label",
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
             SelectionContainer {
                 Text(
                     text = result.translatedText,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleMedium
                 )
             }
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 IconButton(onClick = onSpeak) {
                     Icon(
                         imageVector = Icons.Outlined.VolumeUp,
-                        contentDescription = "Speak translation",
+                        contentDescription = "Speak translation"
                     )
                 }
                 IconButton(onClick = onCopy) {
                     Icon(
                         imageVector = Icons.Outlined.ContentCopy,
-                        contentDescription = "Copy translation",
+                        contentDescription = "Copy translation"
                     )
                 }
                 IconButton(onClick = onShare) {
                     Icon(
                         imageVector = Icons.Outlined.Share,
-                        contentDescription = "Share translation",
+                        contentDescription = "Share translation"
                     )
                 }
                 IconButton(onClick = onFavorite) {
                     Icon(
                         imageVector = Icons.Outlined.StarBorder,
-                        contentDescription = "Save to favorites",
+                        contentDescription = "Save to favorites"
                     )
                 }
             }
@@ -427,29 +427,24 @@ private fun TranslationResultCard(
 }
 
 @Composable
-private fun QuickAction(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-) {
+private fun QuickAction(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
     OutlinedCard(
-        modifier = modifier.clickable(onClick = onClick),
+        modifier = modifier.clickable(onClick = onClick)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = label,
-                tint = MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.primary
             )
             Text(
                 text = label,
-                style = MaterialTheme.typography.labelMedium,
+                style = MaterialTheme.typography.labelMedium
             )
         }
     }

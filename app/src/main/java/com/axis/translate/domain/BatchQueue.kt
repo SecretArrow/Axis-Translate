@@ -2,6 +2,7 @@ package com.axis.translate.domain
 
 import com.axis.translate.domain.model.BatchState
 import com.axis.translate.domain.model.BatchTask
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -9,7 +10,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * In-process batch translation queue (SPEC #64): sequential execution with
@@ -25,7 +25,7 @@ class BatchQueue {
         val state: BatchState = BatchState.PENDING,
         val result: String? = null,
         val error: String? = null,
-        val index: Int = 0,
+        val index: Int = 0
     )
 
     private val mutex = Mutex()

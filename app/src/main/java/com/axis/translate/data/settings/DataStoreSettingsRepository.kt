@@ -60,8 +60,7 @@ private const val MAX_FAVORITE_LANGUAGES = 12
 
 private data class EncodedRecentPair(val seq: Int, val pair: Pair<String, String>)
 
-private fun encodeRecentPair(seq: Int, pair: Pair<String, String>): String =
-    "$seq$SEQ_SEPARATOR${pair.first}$PAIR_SEPARATOR${pair.second}"
+private fun encodeRecentPair(seq: Int, pair: Pair<String, String>): String = "$seq$SEQ_SEPARATOR${pair.first}$PAIR_SEPARATOR${pair.second}"
 
 private fun decodeRecentPair(raw: String): EncodedRecentPair? {
     val seqEnd = raw.indexOf(SEQ_SEPARATOR)
@@ -94,7 +93,7 @@ private fun Preferences.toAppSettings(): AppSettings = AppSettings(
     autoDetectLanguage = this[Keys.AUTO_DETECT_LANGUAGE] ?: true,
     floatingTranslationEnabled = this[Keys.FLOATING_TRANSLATION_ENABLED] ?: false,
     liveCameraTranslation = this[Keys.LIVE_CAMERA_TRANSLATION] ?: true,
-    developerMode = this[Keys.DEVELOPER_MODE] ?: false,
+    developerMode = this[Keys.DEVELOPER_MODE] ?: false
 )
 
 /** Preferences-[DataStore][androidx.datastore.preferences.core.Preferences] implementation of [SettingsRepository]. */

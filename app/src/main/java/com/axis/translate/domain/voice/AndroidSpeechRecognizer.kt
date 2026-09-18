@@ -38,7 +38,7 @@ class AndroidSpeechRecognizer : SpeechRecognitionHelper {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             packageManager.queryIntentActivities(
                 intent,
-                PackageManager.ResolveInfoFlags.of(0),
+                PackageManager.ResolveInfoFlags.of(0)
             ).isNotEmpty()
         } else {
             @Suppress("DEPRECATION")
@@ -46,21 +46,19 @@ class AndroidSpeechRecognizer : SpeechRecognitionHelper {
         }
     }
 
-    override fun createRecognizeIntent(languageHint: String?): Intent =
-        Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, languageHint ?: Locale.getDefault().toString())
-            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, false)
-            putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak now")
-        }
+    override fun createRecognizeIntent(languageHint: String?): Intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+        putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+        putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
+        putExtra(RecognizerIntent.EXTRA_LANGUAGE, languageHint ?: Locale.getDefault().toString())
+        putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, false)
+        putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak now")
+    }
 
-    override fun extractResult(resultCode: Int, data: Intent?): String? =
-        if (resultCode == Activity.RESULT_OK) {
-            data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()
-        } else {
-            null
-        }
+    override fun extractResult(resultCode: Int, data: Intent?): String? = if (resultCode == Activity.RESULT_OK) {
+        data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()
+    } else {
+        null
+    }
 
     override fun errorMessage(errorCode: Int): String = when (errorCode) {
         SpeechRecognizer.ERROR_AUDIO ->

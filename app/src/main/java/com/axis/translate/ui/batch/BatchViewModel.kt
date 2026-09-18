@@ -24,7 +24,7 @@ data class BatchUiState(
     val running: Boolean = false,
     val paused: Boolean = false,
     val source: Language = Language.byCode("en")!!,
-    val target: Language = Language.byCode("id")!!,
+    val target: Language = Language.byCode("id")!!
 )
 
 /**
@@ -61,7 +61,7 @@ class BatchViewModel(private val container: AppContainer) : ViewModel() {
                                 ?: Language.byCode("en")!!
                         },
                         target = Language.byCode(settings.targetLanguageCode)
-                            ?: Language.byCode("id")!!,
+                            ?: Language.byCode("id")!!
                     )
                 }
             }
@@ -79,8 +79,8 @@ class BatchViewModel(private val container: AppContainer) : ViewModel() {
                 label = label,
                 sourceText = trimmed,
                 source = state.source,
-                target = state.target,
-            ),
+                target = state.target
+            )
         )
     }
 
@@ -104,9 +104,8 @@ class BatchViewModel(private val container: AppContainer) : ViewModel() {
     fun remove(id: String) = queue.remove(id)
 
     companion object {
-        fun factory(container: AppContainer): ViewModelProvider.Factory =
-            viewModelFactory {
-                initializer { BatchViewModel(container) }
-            }
+        fun factory(container: AppContainer): ViewModelProvider.Factory = viewModelFactory {
+            initializer { BatchViewModel(container) }
+        }
     }
 }

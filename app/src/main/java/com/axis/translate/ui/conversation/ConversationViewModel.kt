@@ -28,7 +28,7 @@ data class ConversationUiState(
     val aToB: Boolean = true,
     val input: String = "",
     val translating: Boolean = false,
-    val error: String? = null,
+    val error: String? = null
 )
 
 /**
@@ -49,7 +49,7 @@ class ConversationViewModel(private val container: AppContainer) : ViewModel() {
                 _uiState.update { state ->
                     state.copy(
                         langA = Language.byCode(settings.sourceLanguageCode) ?: state.langA,
-                        langB = Language.byCode(settings.targetLanguageCode) ?: state.langB,
+                        langB = Language.byCode(settings.targetLanguageCode) ?: state.langB
                     )
                 }
             }
@@ -85,14 +85,14 @@ class ConversationViewModel(private val container: AppContainer) : ViewModel() {
                         text = text,
                         source = source,
                         target = target,
-                        inputType = InputType.CONVERSATION,
-                    ),
+                        inputType = InputType.CONVERSATION
+                    )
                 )
                 val turn = ConversationTurn(
                     source = source,
                     target = target,
                     original = text,
-                    translated = result.translatedText,
+                    translated = result.translatedText
                 )
                 _uiState.update {
                     it.copy(turns = it.turns + turn, input = "", translating = false)
@@ -104,8 +104,8 @@ class ConversationViewModel(private val container: AppContainer) : ViewModel() {
                         sourceText = text,
                         translatedText = result.translatedText,
                         inputType = InputType.CONVERSATION,
-                        durationMs = result.durationMs,
-                    ),
+                        durationMs = result.durationMs
+                    )
                 )
             } catch (cancelled: TranslationException.Cancelled) {
                 _uiState.update { it.copy(translating = false) }
@@ -116,7 +116,7 @@ class ConversationViewModel(private val container: AppContainer) : ViewModel() {
                 _uiState.update {
                     it.copy(
                         translating = false,
-                        error = error.message ?: "Translation failed.",
+                        error = error.message ?: "Translation failed."
                     )
                 }
             }
@@ -146,8 +146,8 @@ class ConversationViewModel(private val container: AppContainer) : ViewModel() {
                         text = last.original,
                         source = last.source,
                         target = last.target,
-                        inputType = InputType.CONVERSATION,
-                    ),
+                        inputType = InputType.CONVERSATION
+                    )
                 )
                 _uiState.update { current ->
                     current.copy(
@@ -158,7 +158,7 @@ class ConversationViewModel(private val container: AppContainer) : ViewModel() {
                             } else {
                                 turn
                             }
-                        },
+                        }
                     )
                 }
             } catch (cancelled: TranslationException.Cancelled) {
@@ -170,7 +170,7 @@ class ConversationViewModel(private val container: AppContainer) : ViewModel() {
                 _uiState.update {
                     it.copy(
                         translating = false,
-                        error = error.message ?: "Translation failed.",
+                        error = error.message ?: "Translation failed."
                     )
                 }
             }
@@ -188,9 +188,8 @@ class ConversationViewModel(private val container: AppContainer) : ViewModel() {
     }
 
     companion object {
-        fun factory(container: AppContainer): ViewModelProvider.Factory =
-            viewModelFactory {
-                initializer { ConversationViewModel(container) }
-            }
+        fun factory(container: AppContainer): ViewModelProvider.Factory = viewModelFactory {
+            initializer { ConversationViewModel(container) }
+        }
     }
 }

@@ -39,37 +39,32 @@ import androidx.compose.ui.unit.dp
 
 /** Centered icon + title + optional subtitle, used for empty list states. */
 @Composable
-fun EmptyState(
-    icon: ImageVector,
-    title: String,
-    subtitle: String = "",
-    modifier: Modifier = Modifier,
-) {
+fun EmptyState(icon: ImageVector, title: String, subtitle: String = "", modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 32.dp, vertical = 40.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Center
     ) {
         Surface(
             shape = CircleShape,
             color = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
                 modifier = Modifier
                     .padding(20.dp)
-                    .size(32.dp),
+                    .size(32.dp)
             )
         }
         Spacer(Modifier.height(16.dp))
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
-            textAlign = TextAlign.Center,
+            textAlign = TextAlign.Center
         )
         if (subtitle.isNotBlank()) {
             Spacer(Modifier.height(4.dp))
@@ -77,7 +72,7 @@ fun EmptyState(
                 text = subtitle,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
+                textAlign = TextAlign.Center
             )
         }
     }
@@ -88,11 +83,7 @@ fun EmptyState(
  * beneath it while [visible] is true.
  */
 @Composable
-fun LoadingOverlay(
-    visible: Boolean,
-    label: String = "Loading…",
-    modifier: Modifier = Modifier,
-) {
+fun LoadingOverlay(visible: Boolean, label: String = "Loading…", modifier: Modifier = Modifier) {
     if (!visible) return
     // Typed as InteractionSource? so the non-deprecated clickable overload resolves.
     val interactionSource: InteractionSource? = remember { MutableInteractionSource() }
@@ -102,27 +93,27 @@ fun LoadingOverlay(
             .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.55f))
             .clickable(
                 interactionSource = interactionSource,
-                indication = null,
+                indication = null
             ) {
                 // Swallow taps so the covered UI is not interactive.
             },
-        contentAlignment = Alignment.Center,
+        contentAlignment = Alignment.Center
     ) {
         Surface(
             shape = MaterialTheme.shapes.large,
             color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 6.dp,
+            tonalElevation = 6.dp
         ) {
             Column(
                 modifier = Modifier.padding(horizontal = 32.dp, vertical = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 CircularProgressIndicator()
                 Spacer(Modifier.height(16.dp))
                 Text(
                     text = label,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -131,35 +122,31 @@ fun LoadingOverlay(
 
 /** Inline error surface with a dismiss action. */
 @Composable
-fun ErrorBanner(
-    message: String,
-    onDismiss: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun ErrorBanner(message: String, onDismiss: () -> Unit, modifier: Modifier = Modifier) {
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
         color = MaterialTheme.colorScheme.errorContainer,
-        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+        contentColor = MaterialTheme.colorScheme.onErrorContainer
     ) {
         Row(
             modifier = Modifier.padding(start = 16.dp, top = 8.dp, end = 4.dp, bottom = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 imageVector = Icons.Outlined.ErrorOutline,
-                contentDescription = null,
+                contentDescription = null
             )
             Spacer(Modifier.width(12.dp))
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f)
             )
             IconButton(onClick = onDismiss) {
                 Icon(
                     imageVector = Icons.Outlined.Close,
-                    contentDescription = "Dismiss",
+                    contentDescription = "Dismiss"
                 )
             }
         }
@@ -177,21 +164,15 @@ fun OfflineBadge(modifier: Modifier = Modifier) {
             Icon(
                 imageVector = Icons.Rounded.Shield,
                 contentDescription = null,
-                modifier = Modifier.size(16.dp),
+                modifier = Modifier.size(16.dp)
             )
-        },
+        }
     )
 }
 
 /** Confirmation dialog for destructive actions (delete/clear flows). */
 @Composable
-fun ConfirmDialog(
-    title: String,
-    message: String,
-    confirmLabel: String = "Delete",
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit,
-) {
+fun ConfirmDialog(title: String, message: String, confirmLabel: String = "Delete", onConfirm: () -> Unit, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(text = title) },
@@ -200,7 +181,7 @@ fun ConfirmDialog(
             TextButton(onClick = onConfirm) {
                 Text(
                     text = confirmLabel,
-                    color = MaterialTheme.colorScheme.error,
+                    color = MaterialTheme.colorScheme.error
                 )
             }
         },
@@ -208,7 +189,7 @@ fun ConfirmDialog(
             TextButton(onClick = onDismiss) {
                 Text(text = "Cancel")
             }
-        },
+        }
     )
 }
 
@@ -219,35 +200,31 @@ fun SectionHeader(text: String, modifier: Modifier = Modifier) {
         text = text,
         style = MaterialTheme.typography.titleSmall,
         color = MaterialTheme.colorScheme.primary,
-        modifier = modifier,
+        modifier = modifier
     )
 }
 
 /** Compact value + label stat tile. */
 @Composable
-fun StatChip(
-    label: String,
-    value: String,
-    modifier: Modifier = Modifier,
-) {
+fun StatChip(label: String, value: String, modifier: Modifier = Modifier) {
     Surface(
         modifier = modifier,
         shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        color = MaterialTheme.colorScheme.surfaceVariant
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = value,
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

@@ -99,7 +99,7 @@ fun CameraScreen(modifier: Modifier = Modifier) {
 
     var hasPermission by remember {
         mutableStateOf(
-            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED,
+            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
         )
     }
     // Permission is never auto-requested: the preview area shows the rationale
@@ -129,7 +129,7 @@ fun CameraScreen(modifier: Modifier = Modifier) {
                 onImageReady = { vm.onImageReady(it, fromCamera = false) },
                 onLiveChanged = vm::setLive,
                 onFlashChanged = vm::setFlash,
-                onCameraError = vm::onCameraError,
+                onCameraError = vm::onCameraError
             )
 
             is CameraPhase.Reviewing -> OcrReview(
@@ -139,7 +139,7 @@ fun CameraScreen(modifier: Modifier = Modifier) {
                 busy = state.recognizing,
                 onUpdateText = vm::updateEditedOcr,
                 onRetry = vm::retryOcr,
-                onTranslate = vm::translateOcr,
+                onTranslate = vm::translateOcr
             )
 
             CameraPhase.Translating -> TranslatingContent(onCancel = vm::cancelTranslation)
@@ -150,7 +150,7 @@ fun CameraScreen(modifier: Modifier = Modifier) {
                 onCopy = { AndroidUtils.copyToClipboard(context, phase.result.translatedText) },
                 onShare = { AndroidUtils.shareText(context, phase.result.translatedText) },
                 onSpeak = { container.textSpeaker.speak(phase.result.translatedText, state.target.code) },
-                onNewScan = { vm.reset() },
+                onNewScan = { vm.reset() }
             )
 
             is CameraPhase.Failed -> FailedContent(message = phase.message, onRetry = { vm.reset() })
@@ -160,7 +160,7 @@ fun CameraScreen(modifier: Modifier = Modifier) {
             ErrorBanner(
                 message = message,
                 onDismiss = { vm.dismissError() },
-                modifier = Modifier.align(Alignment.TopCenter),
+                modifier = Modifier.align(Alignment.TopCenter)
             )
         }
     }
@@ -176,7 +176,7 @@ private fun CameraPreviewContent(
     onLiveChanged: (Boolean) -> Unit,
     onFlashChanged: (Boolean) -> Unit,
     onCameraError: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -224,11 +224,14 @@ private fun CameraPreviewContent(
         preview.setSurfaceProvider(previewView.surfaceProvider)
         val useCases = mutableListOf<UseCase>(preview, imageCapture)
         if (state.liveEnabled) {
-            imageAnalysis.setAnalyzer(executor, LiveFrameAnalyzer { bitmap ->
-                // Scene changed: run one-shot OCR, then stop analyzing until re-enabled.
-                onImageReady(bitmap)
-                onLiveChanged(false)
-            })
+            imageAnalysis.setAnalyzer(
+                executor,
+                LiveFrameAnalyzer { bitmap ->
+                    // Scene changed: run one-shot OCR, then stop analyzing until re-enabled.
+                    onImageReady(bitmap)
+                    onLiveChanged(false)
+                }
+            )
             useCases += imageAnalysis
         } else {
             imageAnalysis.clearAnalyzer()
@@ -237,7 +240,7 @@ private fun CameraPreviewContent(
             provider.bindToLifecycle(
                 lifecycleOwner,
                 CameraSelector.DEFAULT_BACK_CAMERA,
-                *useCases.toTypedArray(),
+                *useCases.toTypedArray()
             )
         } catch (e: Exception) {
             onCameraError()
@@ -266,12 +269,12 @@ private fun CameraPreviewContent(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 24.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             FilterChip(
                 selected = state.liveEnabled,
                 onClick = { onLiveChanged(!state.liveEnabled) },
-                label = { Text("Live") },
+                label = { Text("Live") }
             )
             Text(
                 text = "${state.source.code.uppercase()} → ${state.target.code.uppercase()}",
@@ -280,7 +283,7 @@ private fun CameraPreviewContent(
                 modifier = Modifier
                     .clip(RoundedCornerShape(50))
                     .background(Color.Black.copy(alpha = 0.4f))
-                    .padding(horizontal = 12.dp, vertical = 6.dp),
+                    .padding(horizontal = 12.dp, vertical = 6.dp)
             )
         }
 
@@ -290,7 +293,7 @@ private fun CameraPreviewContent(
                 .fillMaxWidth()
                 .padding(horizontal = 36.dp, vertical = 32.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = {
                 galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
@@ -312,10 +315,10 @@ private fun CameraPreviewContent(
                             override fun onError(exception: ImageCaptureException) {
                                 onCameraError()
                             }
-                        },
+                        }
                     )
                 },
-                modifier = Modifier.size(72.dp),
+                modifier = Modifier.size(72.dp)
             ) {
                 Icon(Icons.Rounded.PhotoCamera, contentDescription = "Take photo", modifier = Modifier.size(32.dp))
             }
@@ -323,7 +326,7 @@ private fun CameraPreviewContent(
                 Icon(
                     imageVector = if (state.flashOn) Icons.Outlined.FlashOn else Icons.Outlined.FlashOff,
                     contentDescription = if (state.flashOn) "Turn flash off" else "Turn flash on",
-                    tint = Color.White,
+                    tint = Color.White
                 )
             }
         }
@@ -341,13 +344,13 @@ private fun PermissionContent(onGrant: () -> Unit, modifier: Modifier = Modifier
             .fillMaxSize()
             .padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Center
     ) {
         EmptyState(
             icon = Icons.Outlined.PhotoCamera,
             title = "Camera access needed",
             subtitle = "Grant permission to translate with your camera",
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth()
         )
         Spacer(Modifier.height(16.dp))
         Button(onClick = onGrant) {
@@ -365,14 +368,14 @@ private fun OcrReview(
     onUpdateText: (String) -> Unit,
     onRetry: () -> Unit,
     onTranslate: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp),
+                .padding(16.dp)
         ) {
             if (bitmap != null) {
                 Image(
@@ -382,7 +385,7 @@ private fun OcrReview(
                     modifier = Modifier
                         .height(240.dp)
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp)),
+                        .clip(RoundedCornerShape(16.dp))
                 )
                 Spacer(Modifier.height(16.dp))
             }
@@ -391,14 +394,14 @@ private fun OcrReview(
                 onValueChange = onUpdateText,
                 label = { Text("Detected Text") },
                 minLines = 4,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
             )
             if (hasLowConfidence) {
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = "Some words may be uncertain.",
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.tertiary,
+                    color = MaterialTheme.colorScheme.tertiary
                 )
             }
             Spacer(Modifier.height(16.dp))
@@ -409,7 +412,7 @@ private fun OcrReview(
                 Button(
                     onClick = onTranslate,
                     enabled = editedText.isNotBlank(),
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f)
                 ) {
                     Text("Translate All")
                 }
@@ -427,7 +430,7 @@ private fun TranslatingContent(onCancel: () -> Unit, modifier: Modifier = Modifi
         LoadingOverlay(visible = true, label = "Translating…")
         Column(
             modifier = Modifier.align(Alignment.Center),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(Modifier.height(180.dp))
             OutlinedButton(onClick = onCancel) {
@@ -445,45 +448,45 @@ private fun DoneContent(
     onShare: () -> Unit,
     onSpeak: () -> Unit,
     onNewScan: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
+            .padding(16.dp)
     ) {
         Text(
             text = "Source",
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.primary,
+            color = MaterialTheme.colorScheme.primary
         )
         Spacer(Modifier.height(4.dp))
         Text(
             text = sourceText,
             style = MaterialTheme.typography.bodyMedium,
             maxLines = 6,
-            overflow = TextOverflow.Ellipsis,
+            overflow = TextOverflow.Ellipsis
         )
         Spacer(Modifier.height(16.dp))
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
-            color = MaterialTheme.colorScheme.surfaceVariant,
+            color = MaterialTheme.colorScheme.surfaceVariant
         ) {
             Column(Modifier.padding(16.dp)) {
                 result.detectedLanguage?.let { detected ->
                     Text(
                         text = "Detected: ${detected.displayName}",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(Modifier.height(8.dp))
                 }
                 SelectionContainer {
                     Text(
                         text = result.translatedText,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleMedium
                     )
                 }
                 Spacer(Modifier.height(12.dp))
@@ -514,7 +517,7 @@ private fun FailedContent(message: String, onRetry: () -> Unit, modifier: Modifi
             .fillMaxSize()
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Center
     ) {
         ErrorBanner(message = message, onDismiss = onRetry)
         Spacer(Modifier.height(24.dp))
@@ -531,7 +534,7 @@ private fun FailedContent(message: String, onRetry: () -> Unit, modifier: Modifi
  * what triggers recognition.
  */
 private class LiveFrameAnalyzer(
-    private val onSceneChange: (Bitmap) -> Unit,
+    private val onSceneChange: (Bitmap) -> Unit
 ) : ImageAnalysis.Analyzer {
 
     private var lastProcessedMs = 0L

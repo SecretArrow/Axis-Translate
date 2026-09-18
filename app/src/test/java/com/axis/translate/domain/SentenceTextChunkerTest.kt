@@ -78,7 +78,7 @@ class SentenceTextChunkerTest {
         }
         assertEquals(
             originalWords.sorted(),
-            chunks.joinToString("\n\n").split(whitespace).filter { it.isNotBlank() }.sorted(),
+            chunks.joinToString("\n\n").split(whitespace).filter { it.isNotBlank() }.sorted()
         )
     }
 
@@ -105,7 +105,7 @@ class SentenceTextChunkerTest {
         // separating them must survive.
         assertEquals(
             "First line here.\nSecond line there.",
-            chunks.first(),
+            chunks.first()
         )
         assertEquals(listOf("First line here.\nSecond line there.", "Third one now."), chunks)
 
@@ -113,7 +113,7 @@ class SentenceTextChunkerTest {
         val originalWords = text.split(whitespace).filter { it.isNotBlank() }
         assertEquals(
             originalWords.sorted(),
-            chunks.joinToString("\n\n").split(whitespace).filter { it.isNotBlank() }.sorted(),
+            chunks.joinToString("\n\n").split(whitespace).filter { it.isNotBlank() }.sorted()
         )
     }
 

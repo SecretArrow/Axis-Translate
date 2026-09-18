@@ -32,7 +32,7 @@ interface HistoryDao {
     @Query(
         "SELECT * FROM history WHERE sourceText LIKE '%' || :query || '%' ESCAPE '\\' " +
             "OR translatedText LIKE '%' || :query || '%' ESCAPE '\\' " +
-            "ORDER BY timestamp DESC",
+            "ORDER BY timestamp DESC"
     )
     fun search(query: String): Flow<List<HistoryEntity>>
 
@@ -68,7 +68,7 @@ interface FavoriteDao {
     @Query(
         "SELECT * FROM favorites WHERE sourceText LIKE '%' || :query || '%' ESCAPE '\\' " +
             "OR translatedText LIKE '%' || :query || '%' ESCAPE '\\' " +
-            "ORDER BY timestamp DESC",
+            "ORDER BY timestamp DESC"
     )
     suspend fun search(query: String): List<FavoriteEntity>
 }

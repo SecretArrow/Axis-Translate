@@ -22,14 +22,11 @@ import com.axis.translate.ui.settings.SettingsScreen
  * destination in the app; all screens keep the fixed `(modifier)` signature.
  */
 @Composable
-fun AxisNavHost(
-    navController: NavHostController,
-    modifier: Modifier = Modifier,
-) {
+fun AxisNavHost(navController: NavHostController, modifier: Modifier = Modifier) {
     NavHost(
         navController = navController,
         startDestination = Routes.HOME,
-        modifier = modifier,
+        modifier = modifier
     ) {
         composable(Routes.HOME) { HomeScreen(Modifier) }
         composable(Routes.CAMERA) { CameraScreen(Modifier) }

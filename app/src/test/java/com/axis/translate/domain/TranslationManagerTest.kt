@@ -23,14 +23,14 @@ class TranslationManagerTest {
 
     private fun newManager(
         modelPath: () -> String? = { "/models/x.gguf" },
-        engineFactory: () -> TranslationEngine = { FakeEngine { "[fake]" } },
+        engineFactory: () -> TranslationEngine = { FakeEngine { "[fake]" } }
     ): TranslationManager = TranslationManager(
         engineFactory = engineFactory,
         modelPathProvider = modelPath,
         engineConfigProvider = { EngineConfig() },
         textChunker = SentenceTextChunker(),
         promptBuilder = InstructionPromptBuilder(),
-        languageDetector = HeuristicLanguageDetector(),
+        languageDetector = HeuristicLanguageDetector()
     )
 
     @Test
@@ -38,7 +38,7 @@ class TranslationManagerTest {
         val manager = newManager()
 
         val result = manager.translate(
-            TranslationRequest("Hello world", source = english, target = indonesian),
+            TranslationRequest("Hello world", source = english, target = indonesian)
         )
 
         assertEquals("[fake]", result.translatedText)
@@ -52,7 +52,7 @@ class TranslationManagerTest {
 
         try {
             manager.translate(
-                TranslationRequest("Hello world", source = english, target = indonesian),
+                TranslationRequest("Hello world", source = english, target = indonesian)
             )
             fail("Expected TranslationException.ModelNotInstalled")
         } catch (expected: TranslationException.ModelNotInstalled) {
@@ -80,7 +80,12 @@ class TranslationManagerTest {
     fun `multi paragraph input is chunked, per chunk inferred, and reassembled`() = runTest {
         var calls = 0
         val manager = newManager(
-            engineFactory = { FakeEngine { calls += 1; "[fake $calls]" } },
+            engineFactory = {
+                FakeEngine {
+                    calls += 1
+                    "[fake $calls]"
+                }
+            }
         )
 
         val paragraph: (Int) -> String = { seed ->
@@ -93,13 +98,13 @@ class TranslationManagerTest {
         val text = paragraph(1) + "\n\n" + paragraph(2) + "\n\n" + paragraph(3)
 
         val result = manager.translate(
-            TranslationRequest(text, source = english, target = indonesian),
+            TranslationRequest(text, source = english, target = indonesian)
         )
 
         assertTrue("engine should be invoked at least twice, was $calls", calls >= 2)
         assertTrue(
             "reassembled output should contain paragraph breaks",
-            result.translatedText.contains("\n\n"),
+            result.translatedText.contains("\n\n")
         )
         assertTrue(result.translatedText.contains("[fake 1]"))
         assertEquals(TranslationState.Ready, manager.state.value)

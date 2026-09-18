@@ -4,13 +4,13 @@ import android.content.Context
 import android.net.Uri
 import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * [DocumentProcessor] for TXT / MD / HTML documents (SPEC #24).
@@ -21,63 +21,40 @@ import java.io.InputStream
  */
 class HtmlDocumentProcessor : DocumentProcessor {
 
-    override suspend fun extract(context: Context, uri: Uri): Result<DocumentContent> =
-        withContext(Dispatchers.IO) {
-            try {
-                val document = DocumentFile.fromSingleUri(context, uri)
-                val fileName = document?.name?.takeIf { it.isNotBlank() } ?: FALLBACK_NAME
-                val declaredMime = document?.type
-
-                // Capped read: a huge file must fail fast instead of OOM-ing.
-                val bytes = context.contentResolver.openInputStream(uri)?.use(::readBytesCapped)
-                    ?: return@withContext Result.failure(IOException("Document is not readable"))
-
-                val isHtml = declaredMime?.contains("html", ignoreCase = true) == true ||
-                    fileName.endsWith(".html", ignoreCase = true) ||
-                    fileName.endsWith(".htm", ignoreCase = true)
-                val isMarkdown = declaredMime?.contains("markdown", ignoreCase = true) == true ||
-                    fileName.endsWith(".md", ignoreCase = true) ||
-                    fileName.endsWith(".markdown", ignoreCase = true)
-                val normalizedMime = when {
-                    isHtml -> MIME_HTML
-                    isMarkdown -> MIME_MARKDOWN
-                    else -> MIME_PLAIN
-                }
-
-                val raw = String(bytes, Charsets.UTF_8)
-                val text = if (isHtml) stripHtml(raw) else normalizeLineEndings(raw)
-                if (text.isBlank()) {
-                    return@withContext Result.failure(IllegalStateException("Document is empty"))
-                }
-
-                Result.success(
-                    DocumentContent(
-                        title = fileName.substringBeforeLast('.').ifBlank { fileName },
-                        text = text,
-                        mimeType = normalizedMime,
-                    )
-                )
-            } catch (ce: CancellationException) {
-                throw ce
-            } catch (error: Exception) {
-                Result.failure(error)
-            }
-        }
-
-    override suspend fun exportTranslated(
-        context: Context,
-        original: DocumentContent,
-        translatedText: String,
-        targetLanguageCode: String,
-    ): Result<Uri> = withContext(Dispatchers.IO) {
+    override suspend fun extract(context: Context, uri: Uri): Result<DocumentContent> = withContext(Dispatchers.IO) {
         try {
-            val exportDir = File(context.filesDir, "exports").apply { mkdirs() }
-            val fileName = ("${original.title.ifBlank { FALLBACK_NAME }}-$targetLanguageCode.txt")
-                .replace(UNSUPPORTED_FILENAME_REGEX, "_")
-            val file = File(exportDir, fileName)
-            file.writeText(translatedText, Charsets.UTF_8)
+            val document = DocumentFile.fromSingleUri(context, uri)
+            val fileName = document?.name?.takeIf { it.isNotBlank() } ?: FALLBACK_NAME
+            val declaredMime = document?.type
+
+            // Capped read: a huge file must fail fast instead of OOM-ing.
+            val bytes = context.contentResolver.openInputStream(uri)?.use(::readBytesCapped)
+                ?: return@withContext Result.failure(IOException("Document is not readable"))
+
+            val isHtml = declaredMime?.contains("html", ignoreCase = true) == true ||
+                fileName.endsWith(".html", ignoreCase = true) ||
+                fileName.endsWith(".htm", ignoreCase = true)
+            val isMarkdown = declaredMime?.contains("markdown", ignoreCase = true) == true ||
+                fileName.endsWith(".md", ignoreCase = true) ||
+                fileName.endsWith(".markdown", ignoreCase = true)
+            val normalizedMime = when {
+                isHtml -> MIME_HTML
+                isMarkdown -> MIME_MARKDOWN
+                else -> MIME_PLAIN
+            }
+
+            val raw = String(bytes, Charsets.UTF_8)
+            val text = if (isHtml) stripHtml(raw) else normalizeLineEndings(raw)
+            if (text.isBlank()) {
+                return@withContext Result.failure(IllegalStateException("Document is empty"))
+            }
+
             Result.success(
-                FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+                DocumentContent(
+                    title = fileName.substringBeforeLast('.').ifBlank { fileName },
+                    text = text,
+                    mimeType = normalizedMime
+                )
             )
         } catch (ce: CancellationException) {
             throw ce
@@ -85,6 +62,24 @@ class HtmlDocumentProcessor : DocumentProcessor {
             Result.failure(error)
         }
     }
+
+    override suspend fun exportTranslated(context: Context, original: DocumentContent, translatedText: String, targetLanguageCode: String): Result<Uri> =
+        withContext(Dispatchers.IO) {
+            try {
+                val exportDir = File(context.filesDir, "exports").apply { mkdirs() }
+                val fileName = ("${original.title.ifBlank { FALLBACK_NAME }}-$targetLanguageCode.txt")
+                    .replace(UNSUPPORTED_FILENAME_REGEX, "_")
+                val file = File(exportDir, fileName)
+                file.writeText(translatedText, Charsets.UTF_8)
+                Result.success(
+                    FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+                )
+            } catch (ce: CancellationException) {
+                throw ce
+            } catch (error: Exception) {
+                Result.failure(error)
+            }
+        }
 
     /**
      * Converts an HTML document to plain text: drops script/style blocks and
@@ -120,12 +115,11 @@ class HtmlDocumentProcessor : DocumentProcessor {
         return output.replace("&amp;", "&", ignoreCase = true)
     }
 
-    private fun codePointToString(codePoint: Int): String? =
-        if (codePoint in 1..Character.MAX_CODE_POINT) {
-            String(Character.toChars(codePoint))
-        } else {
-            null
-        }
+    private fun codePointToString(codePoint: Int): String? = if (codePoint in 1..Character.MAX_CODE_POINT) {
+        String(Character.toChars(codePoint))
+    } else {
+        null
+    }
 
     private fun readBytesCapped(stream: InputStream): ByteArray {
         val output = ByteArrayOutputStream()
@@ -143,8 +137,7 @@ class HtmlDocumentProcessor : DocumentProcessor {
         return output.toByteArray()
     }
 
-    private fun normalizeLineEndings(text: String): String =
-        text.replace("\r\n", "\n").replace('\r', '\n')
+    private fun normalizeLineEndings(text: String): String = text.replace("\r\n", "\n").replace('\r', '\n')
 
     companion object {
         private const val MAX_DOCUMENT_BYTES = 10 * 1024 * 1024 // 10 MB
@@ -178,7 +171,7 @@ class HtmlDocumentProcessor : DocumentProcessor {
             "&ndash;" to "\u2013",
             "&hellip;" to "\u2026",
             "&laquo;" to "\u00AB",
-            "&raquo;" to "\u00BB",
+            "&raquo;" to "\u00BB"
         )
     }
 }

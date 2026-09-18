@@ -37,7 +37,7 @@ sealed class CameraPhase {
         val ocr: OcrResult,
         val editedText: String,
         val fromCamera: Boolean,
-        val bitmap: Bitmap?,
+        val bitmap: Bitmap?
     ) : CameraPhase()
 
     /** Translation is in flight. */
@@ -59,7 +59,7 @@ data class CameraUiState(
     val target: Language = Language.byCode("id") ?: Language.byCode("en")!!,
     val translating: Boolean = false,
     val recognizing: Boolean = false,
-    val error: String? = null,
+    val error: String? = null
 )
 
 /**
@@ -69,7 +69,7 @@ data class CameraUiState(
  */
 class CameraViewModel(
     private val container: AppContainer,
-    private val appContext: Context? = null,
+    private val appContext: Context? = null
 ) : ViewModel() {
 
     private val _ui = MutableStateFlow(CameraUiState())
@@ -87,7 +87,7 @@ class CameraViewModel(
                     state.copy(
                         liveEnabled = settings.liveCameraTranslation,
                         source = Language.byCode(settings.sourceLanguageCode) ?: Language.AUTO,
-                        target = Language.byCode(settings.targetLanguageCode) ?: Language.byCode("en")!!,
+                        target = Language.byCode(settings.targetLanguageCode) ?: Language.byCode("en")!!
                     )
                 }
             }
@@ -151,8 +151,8 @@ class CameraViewModel(
                         text = text,
                         source = state.source,
                         target = state.target,
-                        inputType = inputType,
-                    ),
+                        inputType = inputType
+                    )
                 )
                 val photoPath = savePhotoIfEnabled(review)
                 container.historyRepository.add(
@@ -164,8 +164,8 @@ class CameraViewModel(
                         inputType = inputType,
                         detectedLanguageCode = result.detectedLanguage?.code,
                         photoPath = photoPath,
-                        durationMs = result.durationMs,
-                    ),
+                        durationMs = result.durationMs
+                    )
                 )
                 _ui.update { it.copy(translating = false, phase = CameraPhase.Done(text, result)) }
             } catch (cancelled: TranslationException.Cancelled) {
@@ -177,7 +177,7 @@ class CameraViewModel(
                 _ui.update {
                     it.copy(
                         translating = false,
-                        phase = CameraPhase.Failed(e.message ?: "The local AI engine could not complete the translation."),
+                        phase = CameraPhase.Failed(e.message ?: "The local AI engine could not complete the translation.")
                     )
                 }
             }
@@ -273,14 +273,13 @@ class CameraViewModel(
          * VM can save translated photos into filesDir without a hard
          * constructor dependency.
          */
-        fun factory(container: AppContainer): ViewModelProvider.Factory =
-            viewModelFactory {
-                initializer {
-                    CameraViewModel(
-                        container,
-                        this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY],
-                    )
-                }
+        fun factory(container: AppContainer): ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                CameraViewModel(
+                    container,
+                    this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY]
+                )
             }
+        }
     }
 }

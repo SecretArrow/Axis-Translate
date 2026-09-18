@@ -39,14 +39,13 @@ class LlamaEngine : TranslationEngine {
         }
     }
 
-    override suspend fun complete(prompt: String, maxTokens: Int, stopSequence: String?): Result<String> =
-        withContext(Dispatchers.Default) {
-            val b = synchronized(lock) { bridge }
-                ?: return@withContext Result.failure(IllegalStateException("Model not loaded"))
-            val out = b.complete(prompt, maxTokens, config?.temperature ?: 0.1f, stopSequence)
-                ?: return@withContext Result.failure(RuntimeException("Generation failed"))
-            Result.success(out)
-        }
+    override suspend fun complete(prompt: String, maxTokens: Int, stopSequence: String?): Result<String> = withContext(Dispatchers.Default) {
+        val b = synchronized(lock) { bridge }
+            ?: return@withContext Result.failure(IllegalStateException("Model not loaded"))
+        val out = b.complete(prompt, maxTokens, config?.temperature ?: 0.1f, stopSequence)
+            ?: return@withContext Result.failure(RuntimeException("Generation failed"))
+        Result.success(out)
+    }
 
     override fun stop() {
         synchronized(lock) { bridge }?.stop()
@@ -57,7 +56,7 @@ class LlamaEngine : TranslationEngine {
             name = "llama.cpp",
             version = LlamaBridge.nativeVersion(),
             threads = it.threads,
-            contextLength = it.contextLength,
+            contextLength = it.contextLength
         )
     }
 

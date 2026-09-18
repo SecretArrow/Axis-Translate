@@ -9,13 +9,13 @@ data class OcrRegion(
     val boundingBox: RectF? = null,
     val confidence: Float? = null,
     val languageTag: String? = null,
-    val lineCount: Int = 1,
+    val lineCount: Int = 1
 )
 
 /** Result of offline OCR over a whole image. */
 data class OcrResult(
     val regions: List<OcrRegion> = emptyList(),
-    val fullText: String = "",
+    val fullText: String = ""
 ) {
     val isEmpty: Boolean get() = fullText.isBlank() && regions.isEmpty()
     val hasLowConfidence: Boolean

@@ -31,10 +31,7 @@ interface ModelRepository {
     suspend fun listEntries(): List<ModelManifestEntry>
 
     /** Download + verify + install the given entry. Emits [progress]. */
-    suspend fun downloadAndInstall(
-        entry: ModelManifestEntry,
-        onProgress: (ModelProgress) -> Unit = {},
-    ): Result<InstalledModelInfo>
+    suspend fun downloadAndInstall(entry: ModelManifestEntry, onProgress: (ModelProgress) -> Unit = {}): Result<InstalledModelInfo>
 
     /**
      * Import a local model package (content URI) after validation:
@@ -59,5 +56,5 @@ interface ModelRepository {
 data class ModelScanResult(
     val status: ModelStatus,
     val info: InstalledModelInfo? = null,
-    val message: String? = null,
+    val message: String? = null
 )

@@ -49,7 +49,7 @@ private val DOCUMENT_MIME_TYPES = arrayOf(
     "text/markdown",
     "text/html",
     "application/octet-stream",
-    "text/x-markdown",
+    "text/x-markdown"
 )
 
 /**
@@ -64,7 +64,7 @@ fun DocumentsScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
 
     val picker = rememberLauncherForActivityResult(
-        ActivityResultContracts.OpenDocument(),
+        ActivityResultContracts.OpenDocument()
     ) { uri -> uri?.let { vm.pick(context, it) } }
 
     // A document shared into the app is routed here by the share-target handoff.
@@ -91,7 +91,7 @@ fun DocumentsScreen(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp)
     ) {
         state.error?.let { message ->
             ErrorBanner(message = message, onDismiss = vm::dismissError)
@@ -105,12 +105,12 @@ fun DocumentsScreen(modifier: Modifier = Modifier) {
                     .fillMaxWidth()
                     .weight(1f),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
+                verticalArrangement = Arrangement.Center
             ) {
                 EmptyState(
                     icon = Icons.Outlined.Description,
                     title = "Translate a document",
-                    subtitle = "Supports TXT, Markdown and HTML",
+                    subtitle = "Supports TXT, Markdown and HTML"
                 )
                 if (state.translating) {
                     Spacer(Modifier.height(16.dp))
@@ -119,7 +119,7 @@ fun DocumentsScreen(modifier: Modifier = Modifier) {
                     Text(
                         text = "Reading document…",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 } else {
                     Spacer(Modifier.height(16.dp))
@@ -134,27 +134,27 @@ fun DocumentsScreen(modifier: Modifier = Modifier) {
                     .fillMaxWidth()
                     .weight(1f)
                     .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // Loaded document card: title, size and content preview.
                 ElevatedCard(modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.padding(16.dp)) {
                         Text(
                             text = doc.title,
-                            style = MaterialTheme.typography.titleLarge,
+                            style = MaterialTheme.typography.titleLarge
                         )
                         Spacer(Modifier.height(2.dp))
                         Text(
                             text = "${doc.text.length} chars",
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(Modifier.height(8.dp))
                         Text(
                             text = doc.text.take(500) + if (doc.text.length > 500) "…" else "",
                             style = MaterialTheme.typography.bodySmall,
                             maxLines = 8,
-                            overflow = TextOverflow.Ellipsis,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
@@ -163,7 +163,7 @@ fun DocumentsScreen(modifier: Modifier = Modifier) {
                     LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                     Text(
                         text = "Translating…",
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.bodyMedium
                     )
                     OutlinedButton(onClick = vm::cancelTranslation) {
                         Text("Cancel")
@@ -174,7 +174,7 @@ fun DocumentsScreen(modifier: Modifier = Modifier) {
                             Text(
                                 text = "Translation",
                                 style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.primary,
+                                color = MaterialTheme.colorScheme.primary
                             )
                             Spacer(Modifier.height(8.dp))
                             SelectionContainer {
@@ -183,7 +183,7 @@ fun DocumentsScreen(modifier: Modifier = Modifier) {
                                     style = MaterialTheme.typography.bodyMedium,
                                     modifier = Modifier
                                         .heightIn(max = 320.dp)
-                                        .verticalScroll(rememberScrollState()),
+                                        .verticalScroll(rememberScrollState())
                                 )
                             }
                         }
@@ -191,7 +191,7 @@ fun DocumentsScreen(modifier: Modifier = Modifier) {
                 } else if (state.translated == null) {
                     Button(
                         onClick = { vm.translate() },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Translate document")
                     }
@@ -200,7 +200,7 @@ fun DocumentsScreen(modifier: Modifier = Modifier) {
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Button(
                         onClick = { vm.export(context) },
-                        enabled = state.translated != null && !state.translating,
+                        enabled = state.translated != null && !state.translating
                     ) {
                         Text("Export & Share")
                     }

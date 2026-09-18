@@ -17,7 +17,7 @@ data class AppSettings(
     val autoDetectLanguage: Boolean = true,
     val floatingTranslationEnabled: Boolean = false,
     val liveCameraTranslation: Boolean = true,
-    val developerMode: Boolean = false,
+    val developerMode: Boolean = false
 )
 
 enum class ThemeMode { SYSTEM, LIGHT, DARK }

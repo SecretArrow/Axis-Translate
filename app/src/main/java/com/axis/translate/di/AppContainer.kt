@@ -1,9 +1,9 @@
 package com.axis.translate.di
 
 import android.content.Context
+import com.axis.translate.data.repo.FavoritesRepository
 import com.axis.translate.data.repo.GlossaryRepository
 import com.axis.translate.data.repo.HistoryRepository
-import com.axis.translate.data.repo.FavoritesRepository
 import com.axis.translate.data.repo.ModelRepository
 import com.axis.translate.data.settings.SettingsRepository
 import com.axis.translate.domain.EngineConfig
@@ -90,7 +90,7 @@ class DefaultAppContainer(private val appContext: Context) : AppContainer {
     override val modelRepository: ModelRepository by lazy {
         com.axis.translate.data.model.DefaultModelRepository(
             context = appContext,
-            settingsRepository = settingsRepo,
+            settingsRepository = settingsRepo
         )
     }
 
@@ -134,12 +134,12 @@ class DefaultAppContainer(private val appContext: Context) : AppContainer {
             engineConfigProvider = {
                 TestOverrides.engineConfigOverride ?: EngineConfig(
                     threads = settingsRepository.current().inferenceThreads,
-                    contextLength = settingsRepository.current().contextLength,
+                    contextLength = settingsRepository.current().contextLength
                 )
             },
             textChunker = textChunker,
             promptBuilder = promptBuilder,
-            languageDetector = languageDetector,
+            languageDetector = languageDetector
         )
     }
 }

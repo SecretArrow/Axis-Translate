@@ -13,10 +13,10 @@ import androidx.room.RoomDatabase
     entities = [
         HistoryEntity::class,
         FavoriteEntity::class,
-        GlossaryEntity::class,
+        GlossaryEntity::class
     ],
     version = 1,
-    exportSchema = false,
+    exportSchema = false
 )
 abstract class AxisDatabase : RoomDatabase() {
 
@@ -32,16 +32,15 @@ abstract class AxisDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: AxisDatabase? = null
 
-        fun get(context: Context): AxisDatabase =
-            INSTANCE ?: synchronized(this) {
-                INSTANCE ?: Room.databaseBuilder(
-                    context.applicationContext,
-                    AxisDatabase::class.java,
-                    DATABASE_NAME,
-                )
-                    .fallbackToDestructiveMigration()
-                    .build()
-                    .also { database -> INSTANCE = database }
-            }
+        fun get(context: Context): AxisDatabase = INSTANCE ?: synchronized(this) {
+            INSTANCE ?: Room.databaseBuilder(
+                context.applicationContext,
+                AxisDatabase::class.java,
+                DATABASE_NAME
+            )
+                .fallbackToDestructiveMigration()
+                .build()
+                .also { database -> INSTANCE = database }
+        }
     }
 }

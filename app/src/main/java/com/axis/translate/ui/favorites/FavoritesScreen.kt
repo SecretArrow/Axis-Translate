@@ -74,18 +74,18 @@ fun FavoritesScreen(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .statusBarsPadding(),
+            .statusBarsPadding()
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 16.dp, end = 8.dp, top = 12.dp, bottom = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "Favorites",
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f)
             )
             if (state.items.isNotEmpty()) {
                 IconButton(onClick = { showClearDialog = true }) {
@@ -109,7 +109,7 @@ fun FavoritesScreen(modifier: Modifier = Modifier) {
                     }
                 }
             },
-            singleLine = true,
+            singleLine = true
         )
 
         Spacer(Modifier.height(8.dp))
@@ -117,12 +117,12 @@ fun FavoritesScreen(modifier: Modifier = Modifier) {
         Box(
             modifier = Modifier
                 .weight(1f)
-                .fillMaxWidth(),
+                .fillMaxWidth()
         ) {
             when {
                 state.items.isEmpty() && state.loading -> Box(
                     modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
+                    contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator()
                 }
@@ -137,14 +137,14 @@ fun FavoritesScreen(modifier: Modifier = Modifier) {
                         } else {
                             "Star a translation to save it here."
                         },
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
 
                 else -> LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(state.items, key = { it.id }) { item ->
                         FavoriteCard(
@@ -155,7 +155,7 @@ fun FavoritesScreen(modifier: Modifier = Modifier) {
                             },
                             onCopy = { AndroidUtils.copyToClipboard(context, item.translatedText) },
                             onShare = { AndroidUtils.shareText(context, item.translatedText) },
-                            onDelete = { vm.delete(item.id) },
+                            onDelete = { vm.delete(item.id) }
                         )
                     }
                 }
@@ -172,7 +172,7 @@ fun FavoritesScreen(modifier: Modifier = Modifier) {
                 vm.clearAll()
                 showClearDialog = false
             },
-            onDismiss = { showClearDialog = false },
+            onDismiss = { showClearDialog = false }
         )
     }
 
@@ -185,7 +185,7 @@ fun FavoritesScreen(modifier: Modifier = Modifier) {
                     value = noteText,
                     onValueChange = { noteText = it },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Add a note…") },
+                    placeholder = { Text("Add a note…") }
                 )
             },
             confirmButton = {
@@ -193,12 +193,12 @@ fun FavoritesScreen(modifier: Modifier = Modifier) {
                     onClick = {
                         vm.update(item.copy(note = noteText.trim()))
                         editing = null
-                    },
+                    }
                 ) { Text("Save") }
             },
             dismissButton = {
                 TextButton(onClick = { editing = null }) { Text("Cancel") }
-            },
+            }
         )
     }
 }
@@ -206,26 +206,20 @@ fun FavoritesScreen(modifier: Modifier = Modifier) {
 /** A single starred translation card with note display and overflow actions. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun FavoriteCard(
-    item: FavoriteItem,
-    onEditNote: () -> Unit,
-    onCopy: () -> Unit,
-    onShare: () -> Unit,
-    onDelete: () -> Unit,
-) {
+private fun FavoriteCard(item: FavoriteItem, onEditNote: () -> Unit, onCopy: () -> Unit, onShare: () -> Unit, onDelete: () -> Unit) {
     var menuOpen by remember { mutableStateOf(false) }
 
     Card(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 16.dp),
-            verticalAlignment = Alignment.Top,
+            verticalAlignment = Alignment.Top
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = languageLine(item.sourceCode, item.targetCode),
                     style = MaterialTheme.typography.labelSmall,
                     fontFamily = FontFamily.Monospace,
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = MaterialTheme.colorScheme.secondary
                 )
                 Spacer(Modifier.height(6.dp))
                 Text(
@@ -233,14 +227,14 @@ private fun FavoriteCard(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
+                    overflow = TextOverflow.Ellipsis
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = item.translatedText,
                     style = MaterialTheme.typography.titleSmall,
                     maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
+                    overflow = TextOverflow.Ellipsis
                 )
                 if (item.note.isNotBlank()) {
                     Spacer(Modifier.height(4.dp))
@@ -250,14 +244,14 @@ private fun FavoriteCard(
                         fontStyle = FontStyle.Italic,
                         color = MaterialTheme.colorScheme.tertiary,
                         maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
                 Spacer(Modifier.height(8.dp))
                 Text(
                     text = AndroidUtils.formatDate(item.timestamp),
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Box {
@@ -266,7 +260,7 @@ private fun FavoriteCard(
                 }
                 DropdownMenu(
                     expanded = menuOpen,
-                    onDismissRequest = { menuOpen = false },
+                    onDismissRequest = { menuOpen = false }
                 ) {
                     DropdownMenuItem(
                         text = { Text("Edit note") },
@@ -274,7 +268,7 @@ private fun FavoriteCard(
                         onClick = {
                             menuOpen = false
                             onEditNote()
-                        },
+                        }
                     )
                     DropdownMenuItem(
                         text = { Text("Copy") },
@@ -282,7 +276,7 @@ private fun FavoriteCard(
                         onClick = {
                             menuOpen = false
                             onCopy()
-                        },
+                        }
                     )
                     DropdownMenuItem(
                         text = { Text("Share") },
@@ -290,7 +284,7 @@ private fun FavoriteCard(
                         onClick = {
                             menuOpen = false
                             onShare()
-                        },
+                        }
                     )
                     DropdownMenuItem(
                         text = { Text("Delete") },
@@ -298,7 +292,7 @@ private fun FavoriteCard(
                         onClick = {
                             menuOpen = false
                             onDelete()
-                        },
+                        }
                     )
                 }
             }

@@ -27,6 +27,7 @@ import com.axis.translate.domain.model.Language
 import com.axis.translate.domain.model.TranslationRequest
 import com.axis.translate.domain.model.TranslationResult
 import com.axis.translate.util.AndroidUtils
+import kotlin.math.abs
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,7 +35,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlin.math.abs
 
 /**
  * Floating translation bubble (SPEC #22): a short-lived overlay service —
@@ -90,7 +90,7 @@ class FloatingTranslateService : Service() {
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
-            PixelFormat.TRANSLUCENT,
+            PixelFormat.TRANSLUCENT
         ).apply {
             gravity = Gravity.TOP or Gravity.START
             x = 0
@@ -114,7 +114,7 @@ class FloatingTranslateService : Service() {
                     layoutParams = FrameLayout.LayoutParams(
                         FrameLayout.LayoutParams.WRAP_CONTENT,
                         FrameLayout.LayoutParams.WRAP_CONTENT,
-                        Gravity.CENTER,
+                        Gravity.CENTER
                     )
                 }
             )
@@ -199,7 +199,7 @@ class FloatingTranslateService : Service() {
                         text = text,
                         source = Language.AUTO,
                         target = target,
-                        inputType = InputType.CLIPBOARD,
+                        inputType = InputType.CLIPBOARD
                     )
                 )
                 recordHistory(text, result, target)
@@ -223,7 +223,7 @@ class FloatingTranslateService : Service() {
                     translatedText = result.translatedText,
                     inputType = InputType.CLIPBOARD,
                     durationMs = result.durationMs,
-                    detectedLanguageCode = result.detectedLanguage?.code,
+                    detectedLanguageCode = result.detectedLanguage?.code
                 )
             )
         } catch (ce: CancellationException) {
@@ -262,7 +262,7 @@ class FloatingTranslateService : Service() {
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
-            PixelFormat.TRANSLUCENT,
+            PixelFormat.TRANSLUCENT
         ).apply {
             gravity = Gravity.CENTER
         }
@@ -271,7 +271,7 @@ class FloatingTranslateService : Service() {
             isIndeterminate = true
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply {
                 gravity = Gravity.CENTER_HORIZONTAL
                 topMargin = dp(8)
@@ -286,7 +286,7 @@ class FloatingTranslateService : Service() {
             visibility = View.GONE
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply { topMargin = dp(8) }
         }
 
@@ -298,7 +298,7 @@ class FloatingTranslateService : Service() {
             visibility = View.GONE
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply { topMargin = dp(8) }
         }
 
@@ -311,7 +311,7 @@ class FloatingTranslateService : Service() {
             visibility = View.GONE
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply { topMargin = dp(12) }
         }
 
@@ -365,23 +365,22 @@ class FloatingTranslateService : Service() {
             buttonsRow.visibility = View.VISIBLE
         }
 
-        private fun actionButton(label: String): TextView =
-            TextView(this@FloatingTranslateService).apply {
-                text = label
-                setTextColor(Color.WHITE)
-                textSize = 14f
-                typeface = Typeface.DEFAULT_BOLD
-                isClickable = true
-                setPadding(dp(14), dp(8), dp(14), dp(8))
-                background = GradientDrawable().apply {
-                    setColor(Color.parseColor(BUBBLE_COLOR_OPAQUE))
-                    cornerRadius = dp(16).toFloat()
-                }
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                )
+        private fun actionButton(label: String): TextView = TextView(this@FloatingTranslateService).apply {
+            text = label
+            setTextColor(Color.WHITE)
+            textSize = 14f
+            typeface = Typeface.DEFAULT_BOLD
+            isClickable = true
+            setPadding(dp(14), dp(8), dp(14), dp(8))
+            background = GradientDrawable().apply {
+                setColor(Color.parseColor(BUBBLE_COLOR_OPAQUE))
+                cornerRadius = dp(16).toFloat()
             }
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        }
     }
 
     companion object {

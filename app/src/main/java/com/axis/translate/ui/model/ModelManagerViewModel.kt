@@ -25,7 +25,7 @@ data class ModelManagerUiState(
     val busy: Boolean = false,
     val error: String? = null,
     val verifyResult: Boolean? = null,
-    val reloading: Boolean = false,
+    val reloading: Boolean = false
 )
 
 /**
@@ -36,10 +36,9 @@ data class ModelManagerUiState(
 class ModelManagerViewModel(private val container: AppContainer) : ViewModel() {
 
     companion object {
-        fun factory(container: AppContainer): ViewModelProvider.Factory =
-            viewModelFactory {
-                initializer { ModelManagerViewModel(container) }
-            }
+        fun factory(container: AppContainer): ViewModelProvider.Factory = viewModelFactory {
+            initializer { ModelManagerViewModel(container) }
+        }
     }
 
     private val _ui = MutableStateFlow(ModelManagerUiState())
@@ -66,7 +65,7 @@ class ModelManagerViewModel(private val container: AppContainer) : ViewModel() {
                         progress = progress,
                         busy = progress.status == ModelStatus.DOWNLOADING ||
                             progress.status == ModelStatus.VERIFYING ||
-                            progress.status == ModelStatus.INSTALLING,
+                            progress.status == ModelStatus.INSTALLING
                     )
                 }
             }
@@ -83,7 +82,7 @@ class ModelManagerViewModel(private val container: AppContainer) : ViewModel() {
                         it.copy(
                             error = e.message
                                 ?: "Model download failed. Check your connection and try again.",
-                            busy = false,
+                            busy = false
                         )
                     }
                 }
@@ -124,7 +123,7 @@ class ModelManagerViewModel(private val container: AppContainer) : ViewModel() {
                         "Model verification failed. The file may be incomplete or corrupted."
                     } else {
                         null
-                    },
+                    }
                 )
             }
         }

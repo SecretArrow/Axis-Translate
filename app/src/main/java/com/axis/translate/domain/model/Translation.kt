@@ -10,7 +10,7 @@ enum class InputType {
     CLIPBOARD,
     SHARE,
     CONVERSATION,
-    BATCH,
+    BATCH
 }
 
 /** Optional translation style preference. Only applied when the model supports instruction control. */
@@ -18,7 +18,7 @@ enum class TranslationStyle(val label: String) {
     STANDARD("Standard"),
     NATURAL("Natural"),
     FORMAL("Formal"),
-    CASUAL("Casual"),
+    CASUAL("Casual")
 }
 
 /** A single translation request flowing through the domain layer. */
@@ -29,7 +29,7 @@ data class TranslationRequest(
     val inputType: InputType = InputType.TEXT,
     val glossary: List<GlossaryTerm> = emptyList(),
     val style: TranslationStyle = TranslationStyle.STANDARD,
-    val maxOutputTokens: Int = 512,
+    val maxOutputTokens: Int = 512
 ) {
     init {
         require(text.isNotBlank()) { "Translation text must not be blank" }
@@ -42,7 +42,7 @@ data class TranslationResult(
     val detectedLanguage: Language? = null,
     val durationMs: Long = 0L,
     val tokensGenerated: Int = 0,
-    val cancelled: Boolean = false,
+    val cancelled: Boolean = false
 )
 
 /** High-level state of the translation subsystem, observed by the UI. */
@@ -61,7 +61,7 @@ sealed interface TranslationState {
         val progress: Float? = null,
         val partial: String? = null,
         val currentChunk: Int = 0,
-        val totalChunks: Int = 1,
+        val totalChunks: Int = 1
     ) : TranslationState
 
     /** Recoverable error with a user-presentable message. */

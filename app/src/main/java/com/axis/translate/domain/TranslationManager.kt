@@ -6,6 +6,9 @@ import com.axis.translate.domain.model.TranslationException
 import com.axis.translate.domain.model.TranslationRequest
 import com.axis.translate.domain.model.TranslationResult
 import com.axis.translate.domain.model.TranslationState
+import java.text.Normalizer
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,9 +17,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import java.text.Normalizer
-import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.math.roundToInt
 
 /**
  * Orchestrates the full translation pipeline (SPEC #1, #15–#18):
@@ -32,7 +32,7 @@ class TranslationManager(
     private val engineConfigProvider: suspend () -> EngineConfig,
     private val textChunker: TextChunker,
     private val promptBuilder: PromptBuilder,
-    private val languageDetector: LanguageDetector,
+    private val languageDetector: LanguageDetector
 ) {
 
     private val mutex = Mutex()
@@ -80,8 +80,9 @@ class TranslationManager(
             val error = loadResult.exceptionOrNull()
             val message = when (error) {
                 is TranslationException -> error.message ?: "Model failed to load"
-                else -> "The local AI engine could not start." +
-                    (error?.message?.let { " $it" } ?: "")
+                else ->
+                    "The local AI engine could not start." +
+                        (error?.message?.let { " $it" } ?: "")
             }
             stateFlow.value = TranslationState.Error(message)
             throw TranslationException.InferenceError(message)
@@ -122,7 +123,7 @@ class TranslationManager(
                 progress = null,
                 partial = null,
                 currentChunk = 0,
-                totalChunks = chunks.size,
+                totalChunks = chunks.size
             )
 
             var generated = 0
@@ -135,12 +136,12 @@ class TranslationManager(
                     text = chunk,
                     glossary = request.glossary.filter(GlossaryTerm::enabled),
                     style = request.style,
-                    detectedLanguage = detected ?: source,
+                    detectedLanguage = detected ?: source
                 )
 
                 val output = e.complete(
                     prompt = prompt,
-                    maxTokens = request.maxOutputTokens,
+                    maxTokens = request.maxOutputTokens
                 ).getOrElse { error ->
                     if (stopRequested.get()) {
                         throw TranslationException.Cancelled()
@@ -155,7 +156,7 @@ class TranslationManager(
                     progress = (index + 1).toFloat() / chunks.size,
                     partial = outputs.joinToString("\n\n"),
                     currentChunk = index + 1,
-                    totalChunks = chunks.size,
+                    totalChunks = chunks.size
                 )
             }
 
@@ -163,7 +164,7 @@ class TranslationManager(
                 translatedText = reassemble(outputs),
                 detectedLanguage = detected ?: source,
                 durationMs = System.currentTimeMillis() - startedAt,
-                tokensGenerated = generated,
+                tokensGenerated = generated
             )
             stateFlow.value = TranslationState.Ready
             result
@@ -178,7 +179,7 @@ class TranslationManager(
             throw error
         } catch (error: Throwable) {
             stateFlow.value = TranslationState.Error(
-                error.message ?: "The local AI engine could not complete the translation.",
+                error.message ?: "The local AI engine could not complete the translation."
             )
             throw TranslationException.InferenceError(error.message ?: "inference error")
         }

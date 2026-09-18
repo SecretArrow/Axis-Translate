@@ -52,7 +52,7 @@ class BatchTranslationService : Service() {
             NotificationChannel(
                 CHANNEL_ID,
                 NOTIFICATION_CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_LOW,
+                NotificationManager.IMPORTANCE_LOW
             )
         )
         queue = BatchQueue.shared()
@@ -69,7 +69,7 @@ class BatchTranslationService : Service() {
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
             } else {
                 0
-            },
+            }
         )
 
         if (runJob?.isActive == true) {
@@ -95,7 +95,7 @@ class BatchTranslationService : Service() {
                         notifyProgress(
                             text = "Translating… $done/$size",
                             done = done,
-                            total = size,
+                            total = size
                         )
                     }
                 }
@@ -132,7 +132,7 @@ class BatchTranslationService : Service() {
                 text = task.sourceText,
                 source = task.source,
                 target = task.target,
-                inputType = InputType.BATCH,
+                inputType = InputType.BATCH
             )
         )
         // History persistence is best-effort: a database failure must not
@@ -146,7 +146,7 @@ class BatchTranslationService : Service() {
                     translatedText = translation.translatedText,
                     inputType = InputType.BATCH,
                     durationMs = translation.durationMs,
-                    detectedLanguageCode = translation.detectedLanguage?.code,
+                    detectedLanguageCode = translation.detectedLanguage?.code
                 )
             )
         } catch (ce: CancellationException) {
@@ -170,17 +170,12 @@ class BatchTranslationService : Service() {
         val manager = getSystemService(NotificationManager::class.java)
         manager?.notify(
             NOTIFICATION_ID,
-            buildNotification(text = message, done = 0, total = 0, ongoing = false),
+            buildNotification(text = message, done = 0, total = 0, ongoing = false)
         )
         stopSelf()
     }
 
-    private fun buildNotification(
-        text: String,
-        done: Int,
-        total: Int,
-        ongoing: Boolean = true,
-    ): Notification {
+    private fun buildNotification(text: String, done: Int, total: Int, ongoing: Boolean = true): Notification {
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle("Axis Translate")
@@ -200,7 +195,7 @@ class BatchTranslationService : Service() {
         this,
         0,
         Intent(this, MainActivity::class.java),
-        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     )
 
     companion object {
@@ -212,7 +207,7 @@ class BatchTranslationService : Service() {
         fun start(context: Context) {
             ContextCompat.startForegroundService(
                 context,
-                Intent(context, BatchTranslationService::class.java),
+                Intent(context, BatchTranslationService::class.java)
             )
         }
     }

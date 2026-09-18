@@ -30,7 +30,7 @@ data class DocumentsUiState(
     val error: String? = null,
     val exportUri: Uri? = null,
     val source: Language = Language.AUTO,
-    val target: Language = Language.byCode("id")!!,
+    val target: Language = Language.byCode("id")!!
 )
 
 /**
@@ -54,7 +54,7 @@ class DocumentsViewModel(private val container: AppContainer) : ViewModel() {
                             settings.sourceLanguageCode == Language.AUTO_CODE -> Language.AUTO
                             else -> Language.byCode(settings.sourceLanguageCode) ?: state.source
                         },
-                        target = Language.byCode(settings.targetLanguageCode) ?: state.target,
+                        target = Language.byCode(settings.targetLanguageCode) ?: state.target
                     )
                 }
             }
@@ -77,7 +77,7 @@ class DocumentsViewModel(private val container: AppContainer) : ViewModel() {
                     _uiState.update {
                         it.copy(
                             translating = false,
-                            error = error.message ?: "Could not read this document.",
+                            error = error.message ?: "Could not read this document."
                         )
                     }
                 }
@@ -103,7 +103,7 @@ class DocumentsViewModel(private val container: AppContainer) : ViewModel() {
                     source = state.source,
                     target = state.target,
                     inputType = InputType.DOCUMENT,
-                    maxOutputTokens = 1024,
+                    maxOutputTokens = 1024
                 )
                 val result = container.translationManager.translate(request)
                 _uiState.update {
@@ -116,8 +116,8 @@ class DocumentsViewModel(private val container: AppContainer) : ViewModel() {
                         sourceText = doc.title,
                         translatedText = result.translatedText.take(2000),
                         inputType = InputType.DOCUMENT,
-                        durationMs = result.durationMs,
-                    ),
+                        durationMs = result.durationMs
+                    )
                 )
             } catch (cancelled: TranslationException.Cancelled) {
                 _uiState.update { it.copy(translating = false) }
@@ -126,7 +126,7 @@ class DocumentsViewModel(private val container: AppContainer) : ViewModel() {
                     it.copy(
                         translating = false,
                         error = error.message
-                            ?: "The local AI engine could not complete the translation.",
+                            ?: "The local AI engine could not complete the translation."
                     )
                 }
             } catch (cancellation: CancellationException) {
@@ -137,7 +137,7 @@ class DocumentsViewModel(private val container: AppContainer) : ViewModel() {
                     it.copy(
                         translating = false,
                         error = error.message
-                            ?: "The local AI engine could not complete the translation.",
+                            ?: "The local AI engine could not complete the translation."
                     )
                 }
             }
@@ -172,7 +172,7 @@ class DocumentsViewModel(private val container: AppContainer) : ViewModel() {
                 translated = null,
                 translating = false,
                 error = null,
-                exportUri = null,
+                exportUri = null
             )
         }
     }
@@ -188,9 +188,8 @@ class DocumentsViewModel(private val container: AppContainer) : ViewModel() {
     }
 
     companion object {
-        fun factory(container: AppContainer): ViewModelProvider.Factory =
-            viewModelFactory {
-                initializer { DocumentsViewModel(container) }
-            }
+        fun factory(container: AppContainer): ViewModelProvider.Factory = viewModelFactory {
+            initializer { DocumentsViewModel(container) }
+        }
     }
 }

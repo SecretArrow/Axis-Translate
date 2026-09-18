@@ -44,7 +44,7 @@ data class HomeUiState(
     val style: TranslationStyle = TranslationStyle.STANDARD,
     val glossaryEnabled: Boolean = true,
     val showModelBanner: Boolean = false,
-    val detectedLabel: String? = null,
+    val detectedLabel: String? = null
 )
 
 /**
@@ -64,7 +64,7 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
         viewModelScope.launch {
             combine(
                 container.settingsRepository.settings,
-                container.modelRepository.installed,
+                container.modelRepository.installed
             ) { settings, installed ->
                 settings to installed
             }.collect { (settings, installed) ->
@@ -85,7 +85,7 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
                         favoriteLanguages = settings.favoriteLanguageCodes,
                         style = runCatching { TranslationStyle.valueOf(settings.translationStyle) }
                             .getOrDefault(TranslationStyle.STANDARD),
-                        glossaryEnabled = settings.glossaryEnabled,
+                        glossaryEnabled = settings.glossaryEnabled
                     )
                 }
             }
@@ -205,7 +205,7 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
                     result = null,
                     detectedLabel = null,
                     progress = null,
-                    partial = null,
+                    partial = null
                 )
             }
             try {
@@ -221,7 +221,7 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
                     target = current.target,
                     inputType = InputType.TEXT,
                     glossary = glossary,
-                    style = current.style,
+                    style = current.style
                 )
                 val result = container.translationManager.translate(request)
                 _uiState.update {
@@ -234,7 +234,7 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
                             result.detectedLanguage?.displayName
                         } else {
                             null
-                        },
+                        }
                     )
                 }
                 container.historyRepository.add(
@@ -245,12 +245,12 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
                         translatedText = result.translatedText,
                         inputType = InputType.TEXT,
                         detectedLanguageCode = result.detectedLanguage?.code,
-                        durationMs = result.durationMs,
-                    ),
+                        durationMs = result.durationMs
+                    )
                 )
                 container.settingsRepository.pushRecentPair(
                     current.source.code,
-                    current.target.code,
+                    current.target.code
                 )
             } catch (cancelled: TranslationException.Cancelled) {
                 _uiState.update { it.copy(translating = false, progress = null, partial = null) }
@@ -258,7 +258,7 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
                 _uiState.update {
                     it.copy(
                         translating = false,
-                        error = error.message ?: "Translation failed.",
+                        error = error.message ?: "Translation failed."
                     )
                 }
             } catch (cancellation: CancellationException) {
@@ -268,7 +268,7 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
                 _uiState.update {
                     it.copy(
                         translating = false,
-                        error = error.message ?: "Translation failed.",
+                        error = error.message ?: "Translation failed."
                     )
                 }
             }
@@ -305,8 +305,8 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
                     sourceCode = state.source.code,
                     targetCode = state.target.code,
                     sourceText = state.input.trim(),
-                    translatedText = result.translatedText,
-                ),
+                    translatedText = result.translatedText
+                )
             )
         }
     }
@@ -337,9 +337,8 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
     }
 
     companion object {
-        fun factory(container: AppContainer): ViewModelProvider.Factory =
-            viewModelFactory {
-                initializer { HomeViewModel(container) }
-            }
+        fun factory(container: AppContainer): ViewModelProvider.Factory = viewModelFactory {
+            initializer { HomeViewModel(container) }
+        }
     }
 }

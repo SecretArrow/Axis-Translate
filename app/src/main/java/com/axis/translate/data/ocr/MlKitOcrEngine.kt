@@ -33,7 +33,7 @@ class MlKitOcrEngine(private val context: Context) : OcrEngine {
             TextRecognition.getClient(ChineseTextRecognizerOptions()),
             TextRecognition.getClient(JapaneseTextRecognizerOptions()),
             TextRecognition.getClient(KoreanTextRecognizerOptions()),
-            TextRecognition.getClient(DevanagariTextRecognizerOptions()),
+            TextRecognition.getClient(DevanagariTextRecognizerOptions())
         )
     }
 
@@ -64,20 +64,19 @@ class MlKitOcrEngine(private val context: Context) : OcrEngine {
         }
     }
 
-    private suspend fun recognizeWith(recognizer: TextRecognizer, input: InputImage): Result<OcrResult> =
-        suspendCancellableCoroutine { continuation ->
-            try {
-                recognizer.process(input)
-                    .addOnSuccessListener { text ->
-                        if (continuation.isActive) continuation.resume(Result.success(map(text)))
-                    }
-                    .addOnFailureListener { error ->
-                        if (continuation.isActive) continuation.resume(Result.failure(error))
-                    }
-            } catch (error: Throwable) {
-                if (continuation.isActive) continuation.resume(Result.failure(error))
-            }
+    private suspend fun recognizeWith(recognizer: TextRecognizer, input: InputImage): Result<OcrResult> = suspendCancellableCoroutine { continuation ->
+        try {
+            recognizer.process(input)
+                .addOnSuccessListener { text ->
+                    if (continuation.isActive) continuation.resume(Result.success(map(text)))
+                }
+                .addOnFailureListener { error ->
+                    if (continuation.isActive) continuation.resume(Result.failure(error))
+                }
+        } catch (error: Throwable) {
+            if (continuation.isActive) continuation.resume(Result.failure(error))
         }
+    }
 
     /** Flattens ML Kit blocks into one [OcrRegion] per recognized line. */
     internal fun map(text: Text): OcrResult {
@@ -88,7 +87,7 @@ class MlKitOcrEngine(private val context: Context) : OcrEngine {
                     text = line.text,
                     boundingBox = line.boundingBox?.let { rect -> RectF(rect) },
                     confidence = line.confidence.takeIf { it >= 0f },
-                    languageTag = line.recognizedLanguage,
+                    languageTag = line.recognizedLanguage
                 )
             }
         return OcrResult(regions = regions, fullText = text.text)

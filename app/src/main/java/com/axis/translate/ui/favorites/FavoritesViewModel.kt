@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 data class FavoritesUiState(
     val items: List<FavoriteItem> = emptyList(),
     val query: String = "",
-    val loading: Boolean = true,
+    val loading: Boolean = true
 )
 
 /**

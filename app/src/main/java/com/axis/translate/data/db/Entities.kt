@@ -18,8 +18,8 @@ import com.axis.translate.domain.model.InputType
     tableName = "history",
     indices = [
         Index("timestamp"),
-        Index("isFavorite"),
-    ],
+        Index("isFavorite")
+    ]
 )
 data class HistoryEntity(
     @PrimaryKey(autoGenerate = true)
@@ -34,7 +34,7 @@ data class HistoryEntity(
     val detectedLanguageCode: String?,
     val photoPath: String?,
     val ocrText: String?,
-    val durationMs: Long,
+    val durationMs: Long
 ) {
     fun toDomain(): HistoryItem = HistoryItem(
         id = id,
@@ -48,7 +48,7 @@ data class HistoryEntity(
         detectedLanguageCode = detectedLanguageCode,
         photoPath = photoPath,
         ocrText = ocrText,
-        durationMs = durationMs,
+        durationMs = durationMs
     )
 
     companion object {
@@ -64,7 +64,7 @@ data class HistoryEntity(
             detectedLanguageCode = item.detectedLanguageCode,
             photoPath = item.photoPath,
             ocrText = item.ocrText,
-            durationMs = item.durationMs,
+            durationMs = item.durationMs
         )
     }
 }
@@ -79,7 +79,7 @@ data class FavoriteEntity(
     val targetCode: String,
     val sourceText: String,
     val translatedText: String,
-    val note: String = "",
+    val note: String = ""
 ) {
     fun toDomain(): FavoriteItem = FavoriteItem(
         id = id,
@@ -88,7 +88,7 @@ data class FavoriteEntity(
         targetCode = targetCode,
         sourceText = sourceText,
         translatedText = translatedText,
-        note = note,
+        note = note
     )
 
     companion object {
@@ -99,7 +99,7 @@ data class FavoriteEntity(
             targetCode = item.targetCode,
             sourceText = item.sourceText,
             translatedText = item.translatedText,
-            note = item.note,
+            note = item.note
         )
     }
 }
@@ -115,7 +115,7 @@ data class GlossaryEntity(
     val targetCode: String,
     val caseSensitive: Boolean,
     val enabled: Boolean,
-    val createdAt: Long,
+    val createdAt: Long
 ) {
     fun toDomain(): GlossaryTerm = GlossaryTerm(
         id = id,
@@ -125,7 +125,7 @@ data class GlossaryEntity(
         targetCode = targetCode,
         caseSensitive = caseSensitive,
         enabled = enabled,
-        createdAt = createdAt,
+        createdAt = createdAt
     )
 
     companion object {
@@ -137,7 +137,7 @@ data class GlossaryEntity(
             targetCode = term.targetCode,
             caseSensitive = term.caseSensitive,
             enabled = term.enabled,
-            createdAt = term.createdAt,
+            createdAt = term.createdAt
         )
     }
 }

@@ -21,7 +21,7 @@ class HeuristicLanguageDetectorTest {
     fun `english is detected by stopwords`() {
         assertDetects(
             "The quick brown fox jumps over the lazy dog near the river",
-            "en",
+            "en"
         )
     }
 
@@ -29,7 +29,7 @@ class HeuristicLanguageDetectorTest {
     fun `indonesian is detected by stopwords`() {
         assertDetects(
             "Selamat pagi, bagaimana kabar kamu hari ini yang baik",
-            "id",
+            "id"
         )
     }
 
@@ -83,7 +83,7 @@ class HeuristicLanguageDetectorTest {
     @Test
     fun `french stopwords and diacritics win over other latin languages`() {
         val detection = detector.detect(
-            "Le chat est sur la table et il ne veut pas sortir de la maison",
+            "Le chat est sur la table et il ne veut pas sortir de la maison"
         )
         assertNotNull(detection)
         assertEquals("fr", detection!!.language.code)
@@ -92,7 +92,7 @@ class HeuristicLanguageDetectorTest {
     @Test
     fun `spanish stopwords and enye are detected`() {
         val detection = detector.detect(
-            "El niño está en la casa con su madre y no quiere salir mañana",
+            "El niño está en la casa con su madre y no quiere salir mañana"
         )
         assertNotNull(detection)
         assertEquals("es", detection!!.language.code)
@@ -103,7 +103,7 @@ class HeuristicLanguageDetectorTest {
         val samples = listOf(
             "The quick brown fox jumps over the lazy dog near the river",
             "Selamat pagi, bagaimana kabar kamu hari ini yang baik",
-            "こんにちは世界、おはようございます今日はいい天気ですね",
+            "こんにちは世界、おはようございます今日はいい天気ですね"
         )
         samples.forEach { sample ->
             detector.detect(sample)?.let {

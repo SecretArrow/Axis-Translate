@@ -55,7 +55,7 @@ fun LanguageSelectionSheet(
     onDismiss: () -> Unit,
     onToggleFavorite: (Language) -> Unit,
     onRecentPairSelected: (Pair<String, String>) -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     var query by remember { mutableStateOf("") }
 
@@ -72,17 +72,17 @@ fun LanguageSelectionSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        modifier = modifier,
+        modifier = modifier
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
-                .imePadding(),
+                .imePadding()
         ) {
             Text(
                 text = if (isTarget) "Translate to" else "Translate from",
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleMedium
             )
             Spacer(Modifier.height(12.dp))
 
@@ -94,11 +94,11 @@ fun LanguageSelectionSheet(
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Outlined.Search,
-                        contentDescription = null,
+                        contentDescription = null
                     )
                 },
                 singleLine = true,
-                shape = MaterialTheme.shapes.large,
+                shape = MaterialTheme.shapes.large
             )
             Spacer(Modifier.height(12.dp))
 
@@ -108,13 +108,13 @@ fun LanguageSelectionSheet(
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(
                         recents.distinct(),
-                        key = { "${it.first}>${it.second}" },
+                        key = { "${it.first}>${it.second}" }
                     ) { pair ->
                         AssistChip(
                             onClick = { onRecentPairSelected(pair) },
                             label = {
                                 Text("${pair.first.uppercase()} → ${pair.second.uppercase()}")
-                            },
+                            }
                         )
                     }
                 }
@@ -123,7 +123,7 @@ fun LanguageSelectionSheet(
 
             LazyColumn(
                 modifier = Modifier.weight(1f, fill = false),
-                contentPadding = PaddingValues(bottom = 24.dp),
+                contentPadding = PaddingValues(bottom = 24.dp)
             ) {
                 if (!isTarget && (query.isBlank() || Language.AUTO.matchesQuery(query))) {
                     item(key = Language.AUTO.code) {
@@ -131,7 +131,7 @@ fun LanguageSelectionSheet(
                             language = Language.AUTO,
                             isFavorite = false,
                             onSelect = onSelect,
-                            onToggleFavorite = null,
+                            onToggleFavorite = null
                         )
                     }
                 }
@@ -142,13 +142,13 @@ fun LanguageSelectionSheet(
                     }
                     items(
                         favoriteLanguages,
-                        key = { "fav_${it.code}" },
+                        key = { "fav_${it.code}" }
                     ) { language ->
                         LanguageRow(
                             language = language,
                             isFavorite = true,
                             onSelect = onSelect,
-                            onToggleFavorite = { onToggleFavorite(language) },
+                            onToggleFavorite = { onToggleFavorite(language) }
                         )
                     }
                     item(key = "all_header") {
@@ -159,13 +159,13 @@ fun LanguageSelectionSheet(
                 }
                 items(
                     filtered,
-                    key = { it.code },
+                    key = { it.code }
                 ) { language ->
                     LanguageRow(
                         language = language,
                         isFavorite = favorites.contains(language.code),
                         onSelect = onSelect,
-                        onToggleFavorite = { onToggleFavorite(language) },
+                        onToggleFavorite = { onToggleFavorite(language) }
                     )
                 }
             }
@@ -175,25 +175,19 @@ fun LanguageSelectionSheet(
 }
 
 @Composable
-private fun LanguageRow(
-    language: Language,
-    isFavorite: Boolean,
-    onSelect: (Language) -> Unit,
-    onToggleFavorite: (() -> Unit)?,
-    modifier: Modifier = Modifier,
-) {
+private fun LanguageRow(language: Language, isFavorite: Boolean, onSelect: (Language) -> Unit, onToggleFavorite: (() -> Unit)?, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.medium)
             .clickable { onSelect(language) }
             .padding(horizontal = 16.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = language.nativeName,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyLarge
             )
             val secondary = if (language.nativeName != language.displayName) {
                 "${language.displayName} · ${language.code.uppercase()}"
@@ -203,7 +197,7 @@ private fun LanguageRow(
             Text(
                 text = secondary,
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
         if (onToggleFavorite != null) {
@@ -219,7 +213,7 @@ private fun LanguageRow(
                         AxisAmber
                     } else {
                         MaterialTheme.colorScheme.onSurfaceVariant
-                    },
+                    }
                 )
             }
         }

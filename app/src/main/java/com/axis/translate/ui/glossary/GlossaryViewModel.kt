@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 data class GlossaryUiState(
     val terms: List<GlossaryTerm> = emptyList(),
     val enabled: Boolean = true,
-    val loading: Boolean = true,
+    val loading: Boolean = true
 )
 
 /**
@@ -40,7 +40,7 @@ class GlossaryViewModel(private val container: AppContainer) : ViewModel() {
         viewModelScope.launch {
             combine(
                 container.glossaryRepository.observe(),
-                container.settingsRepository.settings,
+                container.settingsRepository.settings
             ) { terms, settings -> terms to settings.glossaryEnabled }
                 .collect { (terms, enabled) ->
                     _state.update {

@@ -19,7 +19,7 @@ plugins {
 val defaultAbis = listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
 val axisAbis: List<String> = (
     project.findProperty("axis.abis") as? String
-        )?.split(",")?.map { it.trim() }?.filter { it.isNotBlank() && it != "all" } ?: defaultAbis
+    )?.split(",")?.map { it.trim() }?.filter { it.isNotBlank() && it != "all" } ?: defaultAbis
 val axisSplitApks = (project.findProperty("axis.splitApks") as? String) == "true"
 val buildNumber = (project.findProperty("axis.buildNumber") as? String)?.toIntOrNull() ?: 1
 
@@ -52,12 +52,12 @@ android {
             cmake {
                 arguments += listOf(
                     "-DANDROID_STL=c++_static",
-                    "-DAXIS_LLAMA_TAG=v0.4.1",
+                    "-DAXIS_LLAMA_TAG=v0.4.1"
                 )
                 if ((project.findProperty("axis.ccache") as? String) == "true") {
                     arguments += listOf(
                         "-DCMAKE_C_COMPILER_LAUNCHER=ccache",
-                        "-DCMAKE_CXX_COMPILER_LAUNCHER=ccache",
+                        "-DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
                     )
                 }
                 cppFlags += "-std=c++17"
@@ -85,7 +85,7 @@ android {
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro",
+                "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("release")
         }
@@ -136,7 +136,7 @@ android {
         disable += listOf(
             "UnusedMaterial3ScaffoldPaddingParameter",
             "GradleDependency",
-            "AndroidGradlePluginVersion",
+            "AndroidGradlePluginVersion"
         )
     }
 

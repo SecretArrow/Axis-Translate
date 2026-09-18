@@ -78,11 +78,11 @@ fun ConversationScreen(modifier: Modifier = Modifier) {
     var menuForTurn by remember { mutableStateOf<String?>(null) }
 
     val voiceLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult(),
+        ActivityResultContracts.StartActivityForResult()
     ) { result ->
         val recognized = container.speechRecognizer.extractResult(
             result.resultCode,
-            result.data,
+            result.data
         )
         if (!recognized.isNullOrBlank()) {
             vm.setInput(recognized)
@@ -94,20 +94,20 @@ fun ConversationScreen(modifier: Modifier = Modifier) {
         Column(
             Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
             LanguageBar(
                 source = state.langA,
                 target = state.langB,
                 onSourceClick = {},
                 onTargetClick = {},
-                onSwap = { vm.swapLanguages() },
+                onSwap = { vm.swapLanguages() }
             )
             Row(
                 Modifier
                     .fillMaxWidth()
                     .padding(top = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 AssistChip(
                     onClick = { vm.toggleDirection() },
@@ -117,16 +117,16 @@ fun ConversationScreen(modifier: Modifier = Modifier) {
                                 "${state.langA.code.uppercase()} → ${state.langB.code.uppercase()}"
                             } else {
                                 "${state.langB.code.uppercase()} → ${state.langA.code.uppercase()}"
-                            },
+                            }
                         )
                     },
                     leadingIcon = {
                         Icon(
                             Icons.AutoMirrored.Filled.SwapVert,
                             contentDescription = null,
-                            modifier = Modifier.size(AssistChipDefaults.IconSize),
+                            modifier = Modifier.size(AssistChipDefaults.IconSize)
                         )
-                    },
+                    }
                 )
                 Spacer(Modifier.weight(1f))
                 if (state.turns.isNotEmpty()) {
@@ -143,17 +143,17 @@ fun ConversationScreen(modifier: Modifier = Modifier) {
                 Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 ErrorBanner(
                     message = error,
                     onDismiss = { vm.dismissError() },
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f)
                 )
                 if (state.turns.isNotEmpty()) {
                     TextButton(
                         onClick = { vm.retryLast() },
-                        enabled = !state.translating,
+                        enabled = !state.translating
                     ) {
                         Text("Retry")
                     }
@@ -169,7 +169,7 @@ fun ConversationScreen(modifier: Modifier = Modifier) {
                     onClick = { vm.cancelTranslation() },
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
-                        .padding(vertical = 4.dp),
+                        .padding(vertical = 4.dp)
                 ) {
                     Text("Cancel")
                 }
@@ -183,7 +183,7 @@ fun ConversationScreen(modifier: Modifier = Modifier) {
                     icon = Icons.Outlined.Forum,
                     title = "Conversation mode",
                     subtitle = "Translate back and forth in one place",
-                    modifier = Modifier.align(Alignment.Center),
+                    modifier = Modifier.align(Alignment.Center)
                 )
             }
         } else {
@@ -192,7 +192,7 @@ fun ConversationScreen(modifier: Modifier = Modifier) {
                     .weight(1f)
                     .fillMaxWidth(),
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(state.turns, key = { it.id }) { turn ->
                     val fromA = turn.source.code == state.langA.code
@@ -205,7 +205,7 @@ fun ConversationScreen(modifier: Modifier = Modifier) {
                         onSpeak = {
                             container.textSpeaker.speak(turn.translated, turn.target.code)
                         },
-                        onDelete = { vm.deleteTurn(turn.id) },
+                        onDelete = { vm.deleteTurn(turn.id) }
                     )
                 }
             }
@@ -217,7 +217,7 @@ fun ConversationScreen(modifier: Modifier = Modifier) {
                 "Offline voice recognition is not available on this device.",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(horizontal = 20.dp),
+                modifier = Modifier.padding(horizontal = 20.dp)
             )
         }
 
@@ -227,7 +227,7 @@ fun ConversationScreen(modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             OutlinedTextField(
                 value = state.input,
@@ -236,25 +236,25 @@ fun ConversationScreen(modifier: Modifier = Modifier) {
                 placeholder = { Text("Say something…") },
                 maxLines = 4,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                keyboardActions = KeyboardActions(onSend = { vm.send() }),
+                keyboardActions = KeyboardActions(onSend = { vm.send() })
             )
             IconButton(
                 onClick = {
                     if (container.speechRecognizer.isOfflineAvailable(context)) {
                         showVoiceHint = false
                         voiceLauncher.launch(
-                            container.speechRecognizer.createRecognizeIntent(null),
+                            container.speechRecognizer.createRecognizeIntent(null)
                         )
                     } else {
                         showVoiceHint = true
                     }
-                },
+                }
             ) {
                 Icon(Icons.Filled.Mic, contentDescription = "Voice input")
             }
             Button(
                 onClick = { vm.send() },
-                enabled = state.input.isNotBlank() && !state.translating,
+                enabled = state.input.isNotBlank() && !state.translating
             ) {
                 Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send")
             }
@@ -272,7 +272,7 @@ private fun TurnCard(
     onCopy: () -> Unit,
     onSpeak: () -> Unit,
     onDelete: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     Box(modifier.fillMaxWidth()) {
         Surface(
@@ -280,13 +280,13 @@ private fun TurnCard(
                 topStart = if (fromA) 20.dp else 4.dp,
                 topEnd = if (fromA) 4.dp else 20.dp,
                 bottomEnd = if (fromA) 4.dp else 20.dp,
-                bottomStart = if (fromA) 20.dp else 4.dp,
+                bottomStart = if (fromA) 20.dp else 4.dp
             ),
             color = MaterialTheme.colorScheme.surfaceVariant,
             tonalElevation = 1.dp,
             modifier = Modifier
                 .align(if (fromA) Alignment.CenterStart else Alignment.CenterEnd)
-                .widthIn(max = 340.dp),
+                .widthIn(max = 340.dp)
         ) {
             Column(Modifier.padding(12.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -294,22 +294,22 @@ private fun TurnCard(
                         "${turn.source.code.uppercase()} → ${turn.target.code.uppercase()}",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(1f)
                     )
                     Box {
                         IconButton(
                             onClick = { onMenuOpen(true) },
-                            modifier = Modifier.size(24.dp),
+                            modifier = Modifier.size(24.dp)
                         ) {
                             Icon(
                                 Icons.AutoMirrored.Filled.MoreVert,
                                 contentDescription = "More actions",
-                                modifier = Modifier.size(16.dp),
+                                modifier = Modifier.size(16.dp)
                             )
                         }
                         DropdownMenu(
                             expanded = menuOpen,
-                            onDismissRequest = { onMenuOpen(false) },
+                            onDismissRequest = { onMenuOpen(false) }
                         ) {
                             DropdownMenuItem(
                                 text = { Text("Copy translated") },
@@ -319,7 +319,7 @@ private fun TurnCard(
                                 onClick = {
                                     onCopy()
                                     onMenuOpen(false)
-                                },
+                                }
                             )
                             DropdownMenuItem(
                                 text = { Text("Speak") },
@@ -329,7 +329,7 @@ private fun TurnCard(
                                 onClick = {
                                     onSpeak()
                                     onMenuOpen(false)
-                                },
+                                }
                             )
                             DropdownMenuItem(
                                 text = { Text("Delete") },
@@ -339,7 +339,7 @@ private fun TurnCard(
                                 onClick = {
                                     onDelete()
                                     onMenuOpen(false)
-                                },
+                                }
                             )
                         }
                     }
@@ -347,19 +347,19 @@ private fun TurnCard(
                 Text(
                     turn.original,
                     style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(top = 2.dp),
+                    modifier = Modifier.padding(top = 2.dp)
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
                     turn.translated,
                     style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.SemiBold
                 )
                 Text(
                     AndroidUtils.formatDate(turn.timestamp),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.tertiary,
-                    modifier = Modifier.padding(top = 4.dp),
+                    modifier = Modifier.padding(top = 4.dp)
                 )
             }
         }

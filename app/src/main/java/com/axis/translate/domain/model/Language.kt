@@ -11,7 +11,7 @@ data class Language(
     val code: String,
     val displayName: String,
     val nativeName: String = displayName,
-    val script: String = "Latin",
+    val script: String = "Latin"
 ) {
     val isAuto: Boolean get() = code == AUTO_CODE
 
@@ -48,10 +48,9 @@ data class Language(
             Language("nl", "Dutch", "Nederlands"),
             Language("pl", "Polish", "Polski"),
             Language("ms", "Malay", "Bahasa Melayu"),
-            Language("sv", "Swedish", "Svenska"),
+            Language("sv", "Swedish", "Svenska")
         )
 
-        fun byCode(code: String): Language? =
-            FALLBACK_CATALOG.firstOrNull { it.code == code }
+        fun byCode(code: String): Language? = FALLBACK_CATALOG.firstOrNull { it.code == code }
     }
 }

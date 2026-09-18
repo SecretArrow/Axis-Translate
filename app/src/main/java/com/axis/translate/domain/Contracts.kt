@@ -20,7 +20,7 @@ interface TextChunker {
 data class LanguageDetection(
     val language: Language,
     val confidence: Float,
-    val alternatives: List<Language> = emptyList(),
+    val alternatives: List<Language> = emptyList()
 ) {
     val isConfident: Boolean get() = confidence >= CONFIDENCE_THRESHOLD
 
@@ -50,6 +50,6 @@ interface PromptBuilder {
         text: String,
         glossary: List<GlossaryTerm> = emptyList(),
         style: TranslationStyle = TranslationStyle.STANDARD,
-        detectedLanguage: Language? = null,
+        detectedLanguage: Language? = null
     ): String
 }

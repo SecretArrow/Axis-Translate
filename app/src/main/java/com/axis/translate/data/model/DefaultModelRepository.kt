@@ -44,7 +44,7 @@ import kotlinx.coroutines.withContext
  */
 class DefaultModelRepository(
     private val context: Context,
-    private val settingsRepository: SettingsRepository,
+    private val settingsRepository: SettingsRepository
 ) : ModelRepository {
 
     override val manifest: ModelManifest = ModelManifestParser.fromAssets(context)
@@ -67,87 +67,84 @@ class DefaultModelRepository(
 
     override suspend fun listEntries(): List<ModelManifestEntry> = manifest.models
 
-    override fun languageCatalog(): List<Language> =
-        (_installed.value?.entry ?: manifest.defaultEntry())?.languageCatalog() ?: Language.FALLBACK_CATALOG
+    override fun languageCatalog(): List<Language> = (_installed.value?.entry ?: manifest.defaultEntry())?.languageCatalog() ?: Language.FALLBACK_CATALOG
 
     override fun installedModelPath(): String? = _installed.value?.path
 
-    override suspend fun downloadAndInstall(
-        entry: ModelManifestEntry,
-        onProgress: (ModelProgress) -> Unit,
-    ): Result<InstalledModelInfo> = installMutex.withLock {
-        val partFile = File(File(modelsRoot(), entry.id), entry.file + PART_SUFFIX)
+    override suspend fun downloadAndInstall(entry: ModelManifestEntry, onProgress: (ModelProgress) -> Unit): Result<InstalledModelInfo> =
+        installMutex.withLock {
+            val partFile = File(File(modelsRoot(), entry.id), entry.file + PART_SUFFIX)
 
-        fun emit(progress: ModelProgress) {
-            _progress.value = progress
-            onProgress(progress)
-        }
+            fun emit(progress: ModelProgress) {
+                _progress.value = progress
+                onProgress(progress)
+            }
 
-        emit(ModelProgress(ModelStatus.DOWNLOADING, entryId = entry.id, totalBytes = entry.sizeBytes))
-        try {
-            val downloaded = downloader.download(entry.url, partFile) { bytes ->
+            emit(ModelProgress(ModelStatus.DOWNLOADING, entryId = entry.id, totalBytes = entry.sizeBytes))
+            try {
+                val downloaded = downloader.download(entry.url, partFile) { bytes ->
+                    emit(
+                        ModelProgress(
+                            status = ModelStatus.DOWNLOADING,
+                            entryId = entry.id,
+                            bytesDownloaded = bytes,
+                            totalBytes = entry.sizeBytes
+                        )
+                    )
+                }
+                if (downloaded.isFailure) {
+                    val cause = downloaded.exceptionOrNull() ?: IOException("Model download failed")
+                    deleteQuietly(partFile)
+                    emit(ModelProgress(ModelStatus.ERROR, entryId = entry.id, error = cause.message ?: "Model download failed"))
+                    return Result.failure(cause)
+                }
+                if (partFile.length() <= 0L) {
+                    deleteQuietly(partFile)
+                    val message = "Downloaded model file is empty"
+                    emit(ModelProgress(ModelStatus.ERROR, entryId = entry.id, error = message))
+                    return Result.failure(IllegalStateException(message))
+                }
+
+                emit(ModelProgress(ModelStatus.VERIFYING, entryId = entry.id))
+                val actualSha = withContext(Dispatchers.IO) { sha256(partFile) }
+                if (isKnownHash(entry.sha256) && !actualSha.equals(entry.sha256, ignoreCase = true)) {
+                    deleteQuietly(partFile)
+                    emit(ModelProgress(ModelStatus.CORRUPTED, entryId = entry.id, error = VERIFICATION_FAILED_MESSAGE))
+                    return Result.failure(IllegalStateException(VERIFICATION_FAILED_MESSAGE))
+                }
+
+                val finalFile = withContext(Dispatchers.IO) { installPartFile(partFile, entry) }
+                val info = InstalledModelInfo(
+                    entry = entry,
+                    path = finalFile.absolutePath,
+                    sizeBytes = finalFile.length(),
+                    installedAt = System.currentTimeMillis()
+                )
+                _installed.value = info
                 emit(
                     ModelProgress(
-                        status = ModelStatus.DOWNLOADING,
+                        status = ModelStatus.READY,
                         entryId = entry.id,
-                        bytesDownloaded = bytes,
-                        totalBytes = entry.sizeBytes,
-                    ),
+                        bytesDownloaded = info.sizeBytes,
+                        totalBytes = info.sizeBytes
+                    )
                 )
-            }
-            if (downloaded.isFailure) {
-                val cause = downloaded.exceptionOrNull() ?: IOException("Model download failed")
+                Result.success(info)
+            } catch (cancellation: CancellationException) {
                 deleteQuietly(partFile)
-                emit(ModelProgress(ModelStatus.ERROR, entryId = entry.id, error = cause.message ?: "Model download failed"))
-                return Result.failure(cause)
-            }
-            if (partFile.length() <= 0L) {
+                throw cancellation
+            } catch (failure: Throwable) {
                 deleteQuietly(partFile)
-                val message = "Downloaded model file is empty"
-                emit(ModelProgress(ModelStatus.ERROR, entryId = entry.id, error = message))
-                return Result.failure(IllegalStateException(message))
+                emit(
+                    ModelProgress(
+                        status = ModelStatus.ERROR,
+                        entryId = entry.id,
+                        error = failure.message ?: "Model installation failed"
+                    )
+                )
+                Result.failure(failure)
             }
-
-            emit(ModelProgress(ModelStatus.VERIFYING, entryId = entry.id))
-            val actualSha = withContext(Dispatchers.IO) { sha256(partFile) }
-            if (isKnownHash(entry.sha256) && !actualSha.equals(entry.sha256, ignoreCase = true)) {
-                deleteQuietly(partFile)
-                emit(ModelProgress(ModelStatus.CORRUPTED, entryId = entry.id, error = VERIFICATION_FAILED_MESSAGE))
-                return Result.failure(IllegalStateException(VERIFICATION_FAILED_MESSAGE))
-            }
-
-            val finalFile = withContext(Dispatchers.IO) { installPartFile(partFile, entry) }
-            val info = InstalledModelInfo(
-                entry = entry,
-                path = finalFile.absolutePath,
-                sizeBytes = finalFile.length(),
-                installedAt = System.currentTimeMillis(),
-            )
-            _installed.value = info
-            emit(
-                ModelProgress(
-                    status = ModelStatus.READY,
-                    entryId = entry.id,
-                    bytesDownloaded = info.sizeBytes,
-                    totalBytes = info.sizeBytes,
-                ),
-            )
-            Result.success(info)
-        } catch (cancellation: CancellationException) {
-            deleteQuietly(partFile)
-            throw cancellation
-        } catch (failure: Throwable) {
-            deleteQuietly(partFile)
-            emit(
-                ModelProgress(
-                    status = ModelStatus.ERROR,
-                    entryId = entry.id,
-                    error = failure.message ?: "Model installation failed",
-                ),
-            )
-            Result.failure(failure)
         }
-    }
 
     override suspend fun importModel(uri: Uri): Result<InstalledModelInfo> = installMutex.withLock {
         try {
@@ -207,7 +204,7 @@ class DefaultModelRepository(
                 status = ModelStatus.READY,
                 entryId = found.entry.id,
                 bytesDownloaded = found.sizeBytes,
-                totalBytes = found.sizeBytes,
+                totalBytes = found.sizeBytes
             )
         }
     }
@@ -242,14 +239,14 @@ class DefaultModelRepository(
             entry = associatedEntry ?: buildImportedEntry(destination, actualSha),
             path = destination.absolutePath,
             sizeBytes = destination.length(),
-            installedAt = System.currentTimeMillis(),
+            installedAt = System.currentTimeMillis()
         )
         _installed.value = info
         _progress.value = ModelProgress(
             status = ModelStatus.READY,
             entryId = info.entry.id,
             bytesDownloaded = info.sizeBytes,
-            totalBytes = info.sizeBytes,
+            totalBytes = info.sizeBytes
         )
         return Result.success(info)
     }
@@ -270,7 +267,7 @@ class DefaultModelRepository(
             runtime = "llama.cpp",
             license = "",
             languages = defaultEntry?.languages ?: emptyList(),
-            default = false,
+            default = false
         )
     }
 
@@ -307,8 +304,7 @@ class DefaultModelRepository(
             }
     }.getOrNull()
 
-    private fun sanitizeFileName(name: String): String =
-        name.replace(INVALID_FILENAME_CHARS, "").trim().ifEmpty { DEFAULT_IMPORT_FILE_NAME }
+    private fun sanitizeFileName(name: String): String = name.replace(INVALID_FILENAME_CHARS, "").trim().ifEmpty { DEFAULT_IMPORT_FILE_NAME }
 
     private fun hasGgufMagic(file: File): Boolean {
         if (file.length() < GGUF_MAGIC.size) return false
@@ -346,8 +342,7 @@ class DefaultModelRepository(
     }
 
     /** `false` for the all-zero "not yet published" placeholder checksums. */
-    private fun isKnownHash(sha256: String): Boolean =
-        sha256.isNotBlank() && !sha256.all { char -> char == '0' }
+    private fun isKnownHash(sha256: String): Boolean = sha256.isNotBlank() && !sha256.all { char -> char == '0' }
 
     private fun modelsRoot(): File = File(context.filesDir, ModelRepository.MODELS_DIR)
 

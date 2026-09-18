@@ -18,7 +18,7 @@ class InstructionPromptBuilder : PromptBuilder {
         text: String,
         glossary: List<GlossaryTerm>,
         style: TranslationStyle,
-        detectedLanguage: Language?,
+        detectedLanguage: Language?
     ): String {
         val sourceName = if (source.isAuto) {
             detectedLanguage?.displayName ?: "the auto-detected language"

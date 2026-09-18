@@ -69,7 +69,7 @@ fun ModelManagerScreen(modifier: Modifier = Modifier) {
     var showRemoveConfirm by remember { mutableStateOf(false) }
 
     val importLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.OpenDocument(),
+        ActivityResultContracts.OpenDocument()
     ) { uri ->
         uri?.let(vm::importModel)
     }
@@ -80,19 +80,19 @@ fun ModelManagerScreen(modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // --------------------------------------------------------------
             // Header
             // --------------------------------------------------------------
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = "AI Model",
                     style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f)
                 )
                 OfflineBadge()
             }
@@ -111,52 +111,52 @@ fun ModelManagerScreen(modifier: Modifier = Modifier) {
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = MaterialTheme.shapes.medium,
-                    tonalElevation = 2.dp,
+                    tonalElevation = 2.dp
                 ) {
                     Column(
                         modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
                                 text = installed.entry.displayName,
                                 style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.weight(1f),
+                                modifier = Modifier.weight(1f)
                             )
                             AssistChip(
                                 onClick = {},
-                                label = { Text(installed.entry.quantization) },
+                                label = { Text(installed.entry.quantization) }
                             )
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 imageVector = Icons.Outlined.CheckCircle,
                                 contentDescription = null,
-                                tint = StatusGreen,
+                                tint = StatusGreen
                             )
                             Spacer(Modifier.width(8.dp))
                             Text(
                                 text = "Status: Ready",
-                                style = MaterialTheme.typography.bodyMedium,
+                                style = MaterialTheme.typography.bodyMedium
                             )
                         }
                         Text(
                             text = "Storage: ${AndroidUtils.formatBytes(installed.sizeBytes)}",
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MaterialTheme.typography.bodyMedium
                         )
                         Text(
                             text = "Runtime: ${installed.entry.runtime}",
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MaterialTheme.typography.bodyMedium
                         )
                         Text(
                             text = "Context: ${installed.entry.contextLength}",
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MaterialTheme.typography.bodyMedium
                         )
                         FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             OutlinedButton(onClick = vm::verify) {
                                 Text("Verify")
@@ -179,12 +179,12 @@ fun ModelManagerScreen(modifier: Modifier = Modifier) {
                 true -> Text(
                     text = "✓ Verified",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.primary
                 )
                 false -> Text(
                     text = "SHA-256 mismatch",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.error,
+                    color = MaterialTheme.colorScheme.error
                 )
                 else -> Unit
             }
@@ -199,7 +199,7 @@ fun ModelManagerScreen(modifier: Modifier = Modifier) {
                     installedId = state.installed?.entry?.id,
                     busy = state.busy,
                     progress = state.progress,
-                    onInstall = { vm.install(entry) },
+                    onInstall = { vm.install(entry) }
                 )
             }
 
@@ -208,11 +208,11 @@ fun ModelManagerScreen(modifier: Modifier = Modifier) {
             // --------------------------------------------------------------
             OutlinedButton(
                 onClick = { importLauncher.launch(arrayOf("*/*")) },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Icon(
                     imageVector = Icons.Outlined.UploadFile,
-                    contentDescription = null,
+                    contentDescription = null
                 )
                 Spacer(Modifier.width(8.dp))
                 Text("Import Model")
@@ -221,7 +221,7 @@ fun ModelManagerScreen(modifier: Modifier = Modifier) {
             Text(
                 text = "Network is used only for model download. Inference is fully offline.",
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.tertiary,
+                color = MaterialTheme.colorScheme.tertiary
             )
         }
 
@@ -232,7 +232,7 @@ fun ModelManagerScreen(modifier: Modifier = Modifier) {
             visible = state.reloading ||
                 state.progress?.status == ModelStatus.VERIFYING ||
                 state.progress?.status == ModelStatus.INSTALLING,
-            label = "Preparing model…",
+            label = "Preparing model…"
         )
     }
 
@@ -245,42 +245,36 @@ fun ModelManagerScreen(modifier: Modifier = Modifier) {
                 vm.remove()
                 showRemoveConfirm = false
             },
-            onDismiss = { showRemoveConfirm = false },
+            onDismiss = { showRemoveConfirm = false }
         )
     }
 }
 
 /** One downloadable model from the manifest, with install state + progress. */
 @Composable
-private fun ModelEntryCard(
-    entry: ModelManifestEntry,
-    installedId: String?,
-    busy: Boolean,
-    progress: ModelProgress?,
-    onInstall: () -> Unit,
-) {
+private fun ModelEntryCard(entry: ModelManifestEntry, installedId: String?, busy: Boolean, progress: ModelProgress?, onInstall: () -> Unit) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
                 text = entry.displayName,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleMedium
             )
             if (entry.description.isNotBlank()) {
                 Text(
                     text = entry.description,
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 AssistChip(onClick = {}, label = { Text(entry.quantization) })
                 AssistChip(
                     onClick = {},
-                    label = { Text(AndroidUtils.formatBytes(entry.sizeBytes)) },
+                    label = { Text(AndroidUtils.formatBytes(entry.sizeBytes)) }
                 )
                 AssistChip(onClick = {}, label = { Text("${entry.contextLength} ctx") })
                 if (entry.license.isNotBlank()) {
@@ -296,9 +290,9 @@ private fun ModelEntryCard(
                         Icon(
                             imageVector = Icons.Outlined.Check,
                             contentDescription = null,
-                            modifier = Modifier.size(16.dp),
+                            modifier = Modifier.size(16.dp)
                         )
-                    },
+                    }
                 )
             } else {
                 Button(onClick = onInstall, enabled = !busy) {
@@ -310,13 +304,13 @@ private fun ModelEntryCard(
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     LinearProgressIndicator(
                         progress = { progress.percent },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth()
                     )
                     Text(
                         text = "Downloading… ${(progress.percent * 100).toInt()}% " +
                             "(${AndroidUtils.formatBytes(progress.bytesDownloaded)} / " +
                             "${AndroidUtils.formatBytes(progress.totalBytes)})",
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelSmall
                     )
                 }
             }

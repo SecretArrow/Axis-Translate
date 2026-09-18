@@ -7,7 +7,7 @@ import android.net.Uri
 data class DocumentContent(
     val title: String,
     val text: String,
-    val mimeType: String,
+    val mimeType: String
 ) {
     val isHtml: Boolean get() = mimeType.contains("html")
 }
@@ -24,10 +24,5 @@ interface DocumentProcessor {
      * Writes the translated document into app files/exports and returns a
      * content URI suitable for sharing via FileProvider.
      */
-    suspend fun exportTranslated(
-        context: Context,
-        original: DocumentContent,
-        translatedText: String,
-        targetLanguageCode: String,
-    ): Result<Uri>
+    suspend fun exportTranslated(context: Context, original: DocumentContent, translatedText: String, targetLanguageCode: String): Result<Uri>
 }

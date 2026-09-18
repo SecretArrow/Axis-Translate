@@ -20,15 +20,15 @@ class InstructionPromptBuilderTest {
         val prompt = builder.buildTranslationPrompt(
             source = english,
             target = indonesian,
-            text = "Hello world",
+            text = "Hello world"
         )
 
         assertTrue(prompt.contains("English"))
         assertTrue(prompt.contains("Indonesian"))
         assertTrue(
             prompt.contains(
-                "Translate the text from English to Indonesian.",
-            ),
+                "Translate the text from English to Indonesian."
+            )
         )
         assertTrue(prompt.contains("Hello world"))
         assertTrue(prompt.contains("Output ONLY the translated text, no quotes, no explanations."))
@@ -41,21 +41,21 @@ class InstructionPromptBuilderTest {
                 source = "cat",
                 target = "kucing",
                 sourceCode = "en",
-                targetCode = "id",
+                targetCode = "id"
             ),
             GlossaryTerm(
                 source = "dog",
                 target = "anjing",
                 sourceCode = "en",
-                targetCode = "id",
-            ),
+                targetCode = "id"
+            )
         )
 
         val withGlossary = builder.buildTranslationPrompt(
             source = english,
             target = indonesian,
             text = "The cat and the dog",
-            glossary = glossary,
+            glossary = glossary
         )
         assertTrue(withGlossary.contains("Glossary (apply strictly):"))
         assertTrue(withGlossary.contains("\"cat\" -> \"kucing\""))
@@ -64,7 +64,7 @@ class InstructionPromptBuilderTest {
         val withoutGlossary = builder.buildTranslationPrompt(
             source = english,
             target = indonesian,
-            text = "The cat and the dog",
+            text = "The cat and the dog"
         )
         assertFalse(withoutGlossary.contains("Glossary"))
         assertFalse(withoutGlossary.contains("kucing"))
@@ -76,7 +76,7 @@ class InstructionPromptBuilderTest {
             source = english,
             target = indonesian,
             text = "Hello",
-            style = TranslationStyle.FORMAL,
+            style = TranslationStyle.FORMAL
         )
         assertTrue(formal.contains("Use a formal, professional register."))
 
@@ -84,7 +84,7 @@ class InstructionPromptBuilderTest {
             source = english,
             target = indonesian,
             text = "Hello",
-            style = TranslationStyle.STANDARD,
+            style = TranslationStyle.STANDARD
         )
         assertFalse(standard.contains("formal"))
         assertFalse(standard.contains("register"))
@@ -93,7 +93,7 @@ class InstructionPromptBuilderTest {
             source = english,
             target = indonesian,
             text = "Hello",
-            style = TranslationStyle.NATURAL,
+            style = TranslationStyle.NATURAL
         )
         assertTrue(natural.contains("Prefer natural, idiomatic phrasing."))
 
@@ -101,7 +101,7 @@ class InstructionPromptBuilderTest {
             source = english,
             target = indonesian,
             text = "Hello",
-            style = TranslationStyle.CASUAL,
+            style = TranslationStyle.CASUAL
         )
         assertTrue(casual.contains("Use a casual, conversational register."))
     }
@@ -112,7 +112,7 @@ class InstructionPromptBuilderTest {
             source = Language.AUTO,
             target = indonesian,
             text = "こんにちは",
-            detectedLanguage = Language("ja", "Japanese"),
+            detectedLanguage = Language("ja", "Japanese")
         )
         assertTrue(prompt.contains("Japanese"))
         assertTrue(prompt.contains("Translate the text from Japanese to Indonesian."))
@@ -125,7 +125,7 @@ class InstructionPromptBuilderTest {
             source = Language.AUTO,
             target = english,
             text = "Hello",
-            detectedLanguage = null,
+            detectedLanguage = null
         )
         assertTrue(prompt.contains("the auto-detected language"))
     }
@@ -135,7 +135,7 @@ class InstructionPromptBuilderTest {
         val prompt = builder.buildTranslationPrompt(
             source = english,
             target = indonesian,
-            text = "Hello\nsecond line",
+            text = "Hello\nsecond line"
         )
         val expected = buildString {
             append("You are a professional translation engine. ")

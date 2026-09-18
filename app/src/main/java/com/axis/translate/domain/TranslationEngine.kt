@@ -6,7 +6,7 @@ import com.axis.translate.domain.model.TranslationResult
 data class EngineConfig(
     val threads: Int = 4,
     val contextLength: Int = 2048,
-    val temperature: Float = 0.1f,
+    val temperature: Float = 0.1f
 )
 
 /** Descriptive info about the running engine instance. */
@@ -14,7 +14,7 @@ data class EngineRuntimeInfo(
     val name: String,
     val version: String,
     val threads: Int,
-    val contextLength: Int,
+    val contextLength: Int
 )
 
 /**
@@ -57,5 +57,5 @@ data class EngineCompletion(
     val result: TranslationResult,
     val promptTokens: Int = 0,
     val outputTokens: Int = 0,
-    val tokensPerSecond: Float = 0f,
+    val tokensPerSecond: Float = 0f
 )

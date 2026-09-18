@@ -16,7 +16,7 @@ import kotlinx.coroutines.delay
  */
 class FakeEngine(
     private val responder: (String) -> String = { "[axis-test] ${it.length}" },
-    private val latencyMs: Long = 0,
+    private val latencyMs: Long = 0
 ) : TranslationEngine {
 
     @Volatile
@@ -45,13 +45,12 @@ class FakeEngine(
         // No-op: the fake engine has no cancellable work.
     }
 
-    override fun runtimeInfo(): EngineRuntimeInfo =
-        EngineRuntimeInfo(
-            name = "fake-engine",
-            version = "1.0",
-            threads = 1,
-            contextLength = 2048,
-        )
+    override fun runtimeInfo(): EngineRuntimeInfo = EngineRuntimeInfo(
+        name = "fake-engine",
+        version = "1.0",
+        threads = 1,
+        contextLength = 2048
+    )
 
     override fun close() = unload()
 }

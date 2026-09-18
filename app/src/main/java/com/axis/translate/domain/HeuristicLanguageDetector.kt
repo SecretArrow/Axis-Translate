@@ -41,7 +41,7 @@ class HeuristicLanguageDetector : LanguageDetector {
                     if (ratio > SCRIPT_RATIO_THRESHOLD) {
                         return LanguageDetection(
                             language = scriptRules[r].language,
-                            confidence = ratio.coerceAtMost(MAX_SCRIPT_CONFIDENCE),
+                            confidence = ratio.coerceAtMost(MAX_SCRIPT_CONFIDENCE)
                         )
                     }
                 }
@@ -86,20 +86,20 @@ class HeuristicLanguageDetector : LanguageDetector {
         return LanguageDetection(
             language = winner.language,
             confidence = confidence,
-            alternatives = alternatives,
+            alternatives = alternatives
         )
     }
 
     /** Non-Latin scripts we can identify unambiguously by Unicode block. */
     private data class ScriptRule(
         val language: Language,
-        val blocks: Set<Character.UnicodeBlock>,
+        val blocks: Set<Character.UnicodeBlock>
     )
 
     private data class LatinRule(
         val code: String,
         val language: Language,
-        val stopwords: Set<String>,
+        val stopwords: Set<String>
     )
 
     private companion object {
@@ -120,8 +120,7 @@ class HeuristicLanguageDetector : LanguageDetector {
         val ARABIC = Language.byCode("ar") ?: Language("ar", "Arabic")
         val RUSSIAN = Language.byCode("ru") ?: Language("ru", "Russian")
 
-        fun language(code: String): Language =
-            Language.byCode(code) ?: Language(code, code)
+        fun language(code: String): Language = Language.byCode(code) ?: Language(code, code)
 
         val scriptRules = listOf(
             ScriptRule(
@@ -129,8 +128,8 @@ class HeuristicLanguageDetector : LanguageDetector {
                 setOf(
                     Character.UnicodeBlock.HIRAGANA,
                     Character.UnicodeBlock.KATAKANA,
-                    Character.UnicodeBlock.KATAKANA_PHONETIC_EXTENSIONS,
-                ),
+                    Character.UnicodeBlock.KATAKANA_PHONETIC_EXTENSIONS
+                )
             ),
             ScriptRule(
                 KOREAN,
@@ -139,8 +138,8 @@ class HeuristicLanguageDetector : LanguageDetector {
                     Character.UnicodeBlock.HANGUL_JAMO,
                     Character.UnicodeBlock.HANGUL_COMPATIBILITY_JAMO,
                     Character.UnicodeBlock.HANGUL_JAMO_EXTENDED_A,
-                    Character.UnicodeBlock.HANGUL_JAMO_EXTENDED_B,
-                ),
+                    Character.UnicodeBlock.HANGUL_JAMO_EXTENDED_B
+                )
             ),
             ScriptRule(
                 CHINESE,
@@ -148,8 +147,8 @@ class HeuristicLanguageDetector : LanguageDetector {
                     Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS,
                     Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A,
                     Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B,
-                    Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS,
-                ),
+                    Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS
+                )
             ),
             ScriptRule(HINDI, setOf(Character.UnicodeBlock.DEVANAGARI)),
             ScriptRule(THAI, setOf(Character.UnicodeBlock.THAI)),
@@ -160,9 +159,9 @@ class HeuristicLanguageDetector : LanguageDetector {
                     Character.UnicodeBlock.CYRILLIC,
                     Character.UnicodeBlock.CYRILLIC_SUPPLEMENTARY,
                     Character.UnicodeBlock.CYRILLIC_EXTENDED_A,
-                    Character.UnicodeBlock.CYRILLIC_EXTENDED_B,
-                ),
-            ),
+                    Character.UnicodeBlock.CYRILLIC_EXTENDED_B
+                )
+            )
         )
 
         /**
@@ -177,91 +176,91 @@ class HeuristicLanguageDetector : LanguageDetector {
                 "know", "take", "into", "year", "your", "good", "some", "could",
                 "them", "other", "than", "then", "look", "only", "come", "over",
                 "think", "also", "after", "work", "first", "even", "want", "because",
-                "these", "while", "being", "does", "each",
+                "these", "while", "being", "does", "each"
             ),
             "id" to setOf(
                 "yang", "dan", "di", "itu", "dengan", "untuk", "tidak", "ini",
                 "dari", "dalam", "akan", "ke", "saya", "kamu", "kami", "kita",
                 "mereka", "sudah", "apa", "siapa", "bagaimana", "kalau", "tetapi",
                 "bisa", "ada", "pada", "saat", "oleh", "atau", "jika", "agar",
-                "serta", "yaitu", "adalah", "karena", "belum", "hanya", "olehnya",
+                "serta", "yaitu", "adalah", "karena", "belum", "hanya", "olehnya"
             ),
             "es" to setOf(
                 "el", "la", "los", "las", "de", "que", "y", "a", "en", "un",
                 "una", "por", "con", "para", "es", "del", "se", "no", "su",
                 "como", "pero", "más", "este", "esta", "todo", "muy", "sobre",
                 "me", "ya", "o", "si", "cuando", "porque", "qué", "también",
-                "fue", "eran", "está", "son", "ha", "han", "ser", "mío", "tuya",
+                "fue", "eran", "está", "son", "ha", "han", "ser", "mío", "tuya"
             ),
             "fr" to setOf(
                 "le", "la", "les", "de", "des", "et", "à", "un", "une", "du",
                 "en", "que", "qui", "est", "pour", "dans", "pas", "sur", "plus",
                 "je", "tu", "il", "elle", "nous", "vous", "ils", "ce", "cette",
                 "avec", "mais", "ou", "où", "son", "sa", "ses", "ne", "au", "aux",
-                "comme", "tout", "être", "avoir", "était", "ça", "très", "bien",
+                "comme", "tout", "être", "avoir", "était", "ça", "très", "bien"
             ),
             "de" to setOf(
                 "der", "die", "das", "und", "in", "den", "von", "zu", "mit",
                 "sich", "des", "auf", "für", "ist", "im", "dem", "nicht", "ein",
                 "eine", "als", "auch", "es", "werden", "wird", "aus", "er",
                 "hat", "dass", "sie", "nach", "bei", "um", "am", "sind", "noch",
-                "wenn", "war", "durch", "wie", "wir", "ihre", "doch", "gegen",
+                "wenn", "war", "durch", "wie", "wir", "ihre", "doch", "gegen"
             ),
             "it" to setOf(
                 "il", "la", "di", "che", "e", "a", "un", "una", "per", "in",
                 "con", "del", "dei", "non", "sono", "si", "le", "al", "lo",
                 "come", "ma", "anche", "più", "della", "gli", "nel", "suo",
                 "essere", "avere", "questo", "quella", "quando", "dove",
-                "perché", "molto", "così", "tutte", "tutti", "senza", "poi",
+                "perché", "molto", "così", "tutte", "tutti", "senza", "poi"
             ),
             "pt" to setOf(
                 "o", "a", "os", "as", "de", "que", "e", "do", "da", "em",
                 "um", "uma", "para", "com", "não", "por", "mais", "como",
                 "mas", "ao", "na", "se", "ele", "ela", "eles", "elas", "isso",
                 "este", "esta", "quando", "muito", "já", "entre", "também",
-                "ser", "está", "são", "foi", "sua", "seu", "pelo", "pela",
+                "ser", "está", "são", "foi", "sua", "seu", "pelo", "pela"
             ),
             "nl" to setOf(
                 "de", "het", "een", "en", "van", "is", "dat", "op", "te",
                 "zijn", "met", "voor", "niet", "aan", "hij", "ze", "wij",
                 "jullie", "zij", "dit", "deze", "wat", "maar", "om", "ook",
                 "als", "dan", "nog", "was", "heeft", "hebben", "kunnen",
-                "zullen", "haar", "mijn", "jouw", "ons", "hier", "hoe", "nu",
+                "zullen", "haar", "mijn", "jouw", "ons", "hier", "hoe", "nu"
             ),
             "pl" to setOf(
                 "i", "w", "na", "z", "że", "do", "o", "jak", "nie", "jest",
                 "to", "się", "tak", "ale", "od", "tego", "dla", "czy", "też",
                 "bardzo", "wtedy", "kiedy", "gdzie", "jestem", "jesteś", "może",
                 "będą", "był", "była", "bez", "tym", "tylko", "już", "jeszcze",
-                "przez", "nad", "taki", "jakie", "wszystko", "dobrze",
+                "przez", "nad", "taki", "jakie", "wszystko", "dobrze"
             ),
             "tr" to setOf(
                 "ve", "bir", "bu", "için", "ile", "gibi", "ama", "daha",
                 "çok", "var", "yok", "ben", "sen", "o", "biz", "siz", "onlar",
                 "ne", "nasıl", "değil", "kadar", "sonra", "her", "şey",
                 "olduğunu", "olduğu", "ise", "ya", "hem", "de", "da", "mi",
-                "mı", "çok", "kez", "şimdi", "önce", "bana", "sana", "bunu",
+                "mı", "çok", "kez", "şimdi", "önce", "bana", "sana", "bunu"
             ),
             "ms" to setOf(
                 "yang", "dan", "di", "itu", "dengan", "untuk", "tidak", "ini",
                 "dari", "dalam", "akan", "ke", "saya", "kamu", "dia", "kami",
                 "mereka", "ada", "boleh", "sudah", "pada", "atau", "jika",
                 "tetapi", "kerana", "sangat", "juga", "hanya", "oleh", "ialah",
-                "bila", "apa", "siapa", "kenapa", "macam", "lagi", "semua",
+                "bila", "apa", "siapa", "kenapa", "macam", "lagi", "semua"
             ),
             "sv" to setOf(
                 "och", "att", "det", "som", "en", "på", "är", "av", "för",
                 "med", "inte", "till", "har", "om", "ett", "men", "vi", "du",
                 "han", "hon", "den", "de", "här", "vad", "från", "när", "då",
                 "sig", "ut", "utan", "över", "under", "igen", "mycket", "alla",
-                "skulle", "kunna", "denna", "eller", "så", "ju", "än",
+                "skulle", "kunna", "denna", "eller", "så", "ju", "än"
             ),
             "vi" to setOf(
                 "và", "của", "là", "không", "có", "các", "được", "cho", "này",
                 "với", "người", "về", "những", "thì", "bị", "một", "để",
                 "khi", "đã", "cũng", "ở", "vì", "nhưng", "mà", "trong", "tôi",
-                "bạn", "anh", "chúng", "nó", "như", "nếu", "ra", "lại", "này",
-            ),
+                "bạn", "anh", "chúng", "nó", "như", "nếu", "ra", "lại", "này"
+            )
         ).map { (code, stopwords) -> LatinRule(code, language(code), stopwords) }
 
         /** Characteristic diacritics per language code (for confidence boosting). */
@@ -270,7 +269,7 @@ class HeuristicLanguageDetector : LanguageDetector {
             "es" to setOf('é', 'è', 'ê', 'ç', 'ñ'),
             "de" to setOf('ü', 'ö', 'ß'),
             "pl" to setOf('ą', 'ę', 'ł', 'ż'),
-            "tr" to setOf('ı', 'ş', 'ğ'),
+            "tr" to setOf('ı', 'ş', 'ğ')
         )
 
         const val DIACRITIC_STEP = 0.05f

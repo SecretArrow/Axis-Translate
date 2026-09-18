@@ -15,14 +15,14 @@ data class HistoryItem(
     val detectedLanguageCode: String? = null,
     val photoPath: String? = null,
     val ocrText: String? = null,
-    val durationMs: Long = 0L,
+    val durationMs: Long = 0L
 ) {
     fun toFavorite(): FavoriteItem = FavoriteItem(
         timestamp = timestamp,
         sourceCode = sourceCode,
         targetCode = targetCode,
         sourceText = sourceText,
-        translatedText = translatedText,
+        translatedText = translatedText
     )
 }
 
@@ -34,7 +34,7 @@ data class FavoriteItem(
     val targetCode: String,
     val sourceText: String,
     val translatedText: String,
-    val note: String = "",
+    val note: String = ""
 )
 
 /** A glossary term: enforced source -> target rendering during translation. */
@@ -46,7 +46,7 @@ data class GlossaryTerm(
     val targetCode: String,
     val caseSensitive: Boolean = false,
     val enabled: Boolean = true,
-    val createdAt: Long = System.currentTimeMillis(),
+    val createdAt: Long = System.currentTimeMillis()
 ) {
     init {
         require(source.isNotBlank()) { "Glossary source term must not be blank" }
@@ -61,7 +61,7 @@ data class ConversationTurn(
     val source: Language,
     val target: Language,
     val original: String,
-    val translated: String,
+    val translated: String
 )
 
 /** A batch translation task. */
@@ -72,7 +72,7 @@ data class BatchTask(
     val source: Language,
     val target: Language,
     val sourceUri: String? = null,
-    val createdAt: Long = System.currentTimeMillis(),
+    val createdAt: Long = System.currentTimeMillis()
 )
 
 /** Batch queue item state. */

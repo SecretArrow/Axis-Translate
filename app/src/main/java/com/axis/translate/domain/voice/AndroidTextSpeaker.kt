@@ -2,11 +2,11 @@ package com.axis.translate.domain.voice
 
 import android.content.Context
 import android.speech.tts.TextToSpeech
+import java.util.Locale
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
-import java.util.Locale
 
 /**
  * [TextSpeaker] backed by the platform text-to-speech engine (SPEC #20).
@@ -77,7 +77,7 @@ class AndroidTextSpeaker(private val context: Context) : TextSpeaker {
             text,
             TextToSpeech.QUEUE_FLUSH,
             null,
-            "axis-${System.currentTimeMillis()}",
+            "axis-${System.currentTimeMillis()}"
         )
     }
 

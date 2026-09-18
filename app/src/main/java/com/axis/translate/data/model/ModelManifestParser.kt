@@ -19,6 +19,6 @@ object ModelManifestParser {
 
     /** Reads and parses the manifest bundled inside the APK assets. */
     fun fromAssets(context: Context): ModelManifest = parse(
-        context.assets.open(ModelRepository.MANIFEST_ASSET).bufferedReader().use { reader -> reader.readText() },
+        context.assets.open(ModelRepository.MANIFEST_ASSET).bufferedReader().use { reader -> reader.readText() }
     )
 }

@@ -101,15 +101,14 @@ class MainActivity : ComponentActivity() {
     }
 
     /** Type-safe EXTRA_STREAM extraction with the API 33+ typed overload. */
-    private fun extractStreamUri(intent: Intent): Uri? =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            runCatching {
-                intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
-            }.getOrNull()
-        } else {
-            @Suppress("DEPRECATION")
-            runCatching { intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM) }.getOrNull()
-        }
+    private fun extractStreamUri(intent: Intent): Uri? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        runCatching {
+            intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
+        }.getOrNull()
+    } else {
+        @Suppress("DEPRECATION")
+        runCatching { intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM) }.getOrNull()
+    }
 }
 
 /** App root: bottom bar + navigation graph. */
@@ -127,11 +126,11 @@ private fun AxisAppScaffold() {
     }
 
     Scaffold(
-        bottomBar = { AxisBottomBar(navController) },
+        bottomBar = { AxisBottomBar(navController) }
     ) { innerPadding ->
         AxisNavHost(
             navController = navController,
-            modifier = Modifier.padding(innerPadding),
+            modifier = Modifier.padding(innerPadding)
         )
     }
 }
@@ -140,7 +139,7 @@ private data class BottomDestination(
     val route: String,
     val label: String,
     val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector,
+    val unselectedIcon: ImageVector
 )
 
 private val bottomDestinations = listOf(
@@ -148,7 +147,7 @@ private val bottomDestinations = listOf(
     BottomDestination(Routes.CAMERA, "Camera", Icons.Filled.PhotoCamera, Icons.Outlined.PhotoCameraOutlined),
     BottomDestination(Routes.HISTORY, "History", Icons.Filled.History, Icons.Outlined.HistoryOutlined),
     BottomDestination(Routes.FAVORITES, "Favorites", Icons.Filled.Star, Icons.Outlined.StarBorder),
-    BottomDestination(Routes.SETTINGS, "Settings", Icons.Filled.Settings, Icons.Outlined.SettingsOutlined),
+    BottomDestination(Routes.SETTINGS, "Settings", Icons.Filled.Settings, Icons.Outlined.SettingsOutlined)
 )
 
 @Composable
@@ -175,10 +174,10 @@ private fun AxisBottomBar(navController: NavHostController) {
                 icon = {
                     Icon(
                         imageVector = if (selected) destination.selectedIcon else destination.unselectedIcon,
-                        contentDescription = destination.label,
+                        contentDescription = destination.label
                     )
                 },
-                label = { Text(destination.label) },
+                label = { Text(destination.label) }
             )
         }
     }

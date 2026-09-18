@@ -34,11 +34,7 @@ class ModelDownloader {
      * against a known `Content-Length`, and cancellation (partial file removed,
      * [CancellationException] rethrown to the caller).
      */
-    suspend fun download(
-        url: String,
-        destination: File,
-        onProgress: (bytesDownloaded: Long) -> Unit,
-    ): Result<File> = withContext(Dispatchers.IO) {
+    suspend fun download(url: String, destination: File, onProgress: (bytesDownloaded: Long) -> Unit): Result<File> = withContext(Dispatchers.IO) {
         val parent = destination.parentFile
         if (parent != null && !parent.isDirectory && !parent.mkdirs()) {
             return@withContext Result.failure(IOException("Cannot create download directory: ${parent.absolutePath}"))
@@ -64,7 +60,7 @@ class ModelDownloader {
                 if (expectedBytes >= 0L && written != expectedBytes) {
                     destination.delete()
                     return@withContext Result.failure(
-                        IOException("Download incomplete: received $written of $expectedBytes bytes"),
+                        IOException("Download incomplete: received $written of $expectedBytes bytes")
                     )
                 }
                 onProgress(written)
@@ -77,11 +73,7 @@ class ModelDownloader {
         }
     }
 
-    private suspend fun writeBodyToFile(
-        input: InputStream,
-        destination: File,
-        onProgress: (bytesDownloaded: Long) -> Unit,
-    ): Long {
+    private suspend fun writeBodyToFile(input: InputStream, destination: File, onProgress: (bytesDownloaded: Long) -> Unit): Long {
         var written = 0L
         var lastReported = 0L
         destination.outputStream().use { output ->

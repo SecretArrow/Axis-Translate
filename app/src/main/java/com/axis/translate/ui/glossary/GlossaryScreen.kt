@@ -70,47 +70,47 @@ fun GlossaryScreen(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxSize()
-            .statusBarsPadding(),
+            .statusBarsPadding()
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = "Glossary",
                     style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f)
                 )
             }
 
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 16.dp)
             ) {
                 Row(
                     modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.MenuBook,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(Modifier.width(12.dp))
                     Text(
                         text = "Terms in the glossary are enforced during translation when the glossary is enabled.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(1f)
                     )
                     Spacer(Modifier.width(12.dp))
                     Switch(
                         checked = state.enabled,
-                        onCheckedChange = { vm.toggleEnabled() },
+                        onCheckedChange = { vm.toggleEnabled() }
                     )
                 }
             }
@@ -120,12 +120,12 @@ fun GlossaryScreen(modifier: Modifier = Modifier) {
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
             ) {
                 when {
                     state.terms.isEmpty() && state.loading -> Box(
                         modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
+                        contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator()
                     }
@@ -134,19 +134,19 @@ fun GlossaryScreen(modifier: Modifier = Modifier) {
                         icon = Icons.Outlined.MenuBook,
                         title = "Glossary is empty",
                         subtitle = "Add a term to keep translations consistent.",
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize()
                     )
 
                     else -> LazyColumn(
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(state.terms, key = { it.id }) { term ->
                             GlossaryTermCard(
                                 term = term,
                                 onEdit = { editing = term },
-                                onDelete = { deleting = term },
+                                onDelete = { deleting = term }
                             )
                         }
                     }
@@ -160,7 +160,7 @@ fun GlossaryScreen(modifier: Modifier = Modifier) {
             onClick = { showAddDialog = true },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(16.dp),
+                .padding(16.dp)
         )
     }
 
@@ -171,7 +171,7 @@ fun GlossaryScreen(modifier: Modifier = Modifier) {
             onConfirm = { term ->
                 vm.add(term)
                 showAddDialog = false
-            },
+            }
         )
     }
 
@@ -182,7 +182,7 @@ fun GlossaryScreen(modifier: Modifier = Modifier) {
             onConfirm = { updated ->
                 vm.update(updated)
                 editing = null
-            },
+            }
         )
     }
 
@@ -195,7 +195,7 @@ fun GlossaryScreen(modifier: Modifier = Modifier) {
                 vm.delete(term.id)
                 deleting = null
             },
-            onDismiss = { deleting = null },
+            onDismiss = { deleting = null }
         )
     }
 }
@@ -203,17 +203,13 @@ fun GlossaryScreen(modifier: Modifier = Modifier) {
 /** A single glossary term row with edit / delete overflow actions. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun GlossaryTermCard(
-    term: GlossaryTerm,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit,
-) {
+private fun GlossaryTermCard(term: GlossaryTerm, onEdit: () -> Unit, onDelete: () -> Unit) {
     var menuOpen by remember { mutableStateOf(false) }
 
     Card(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -221,14 +217,14 @@ private fun GlossaryTermCard(
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
+                    overflow = TextOverflow.Ellipsis
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = languageLine(term.sourceCode, term.targetCode),
                     style = MaterialTheme.typography.labelSmall,
                     fontFamily = FontFamily.Monospace,
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = MaterialTheme.colorScheme.secondary
                 )
             }
             Box {
@@ -237,7 +233,7 @@ private fun GlossaryTermCard(
                 }
                 DropdownMenu(
                     expanded = menuOpen,
-                    onDismissRequest = { menuOpen = false },
+                    onDismissRequest = { menuOpen = false }
                 ) {
                     DropdownMenuItem(
                         text = { Text("Edit") },
@@ -245,7 +241,7 @@ private fun GlossaryTermCard(
                         onClick = {
                             menuOpen = false
                             onEdit()
-                        },
+                        }
                     )
                     DropdownMenuItem(
                         text = { Text("Delete") },
@@ -253,7 +249,7 @@ private fun GlossaryTermCard(
                         onClick = {
                             menuOpen = false
                             onDelete()
-                        },
+                        }
                     )
                 }
             }
@@ -264,11 +260,7 @@ private fun GlossaryTermCard(
 /** Add/edit dialog for a glossary term with its language pair codes. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun GlossaryTermDialog(
-    initial: GlossaryTerm?,
-    onDismiss: () -> Unit,
-    onConfirm: (GlossaryTerm) -> Unit,
-) {
+private fun GlossaryTermDialog(initial: GlossaryTerm?, onDismiss: () -> Unit, onConfirm: (GlossaryTerm) -> Unit) {
     var source by remember(initial) { mutableStateOf(initial?.source ?: "") }
     var target by remember(initial) { mutableStateOf(initial?.target ?: "") }
     var sourceCode by remember(initial) { mutableStateOf(initial?.sourceCode ?: "en") }
@@ -287,14 +279,14 @@ private fun GlossaryTermDialog(
                     onValueChange = { source = it },
                     label = { Text("Source term") },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = target,
                     onValueChange = { target = it },
                     label = { Text("Target term") },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth()
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     OutlinedTextField(
@@ -302,14 +294,14 @@ private fun GlossaryTermDialog(
                         onValueChange = { sourceCode = it },
                         label = { Text("From") },
                         singleLine = true,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(1f)
                     )
                     OutlinedTextField(
                         value = targetCode,
                         onValueChange = { targetCode = it },
                         label = { Text("To") },
                         singleLine = true,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(1f)
                     )
                 }
             }
@@ -327,15 +319,15 @@ private fun GlossaryTermDialog(
                             targetCode = targetCode.trim().lowercase(),
                             caseSensitive = initial?.caseSensitive ?: false,
                             enabled = initial?.enabled ?: true,
-                            createdAt = initial?.createdAt ?: System.currentTimeMillis(),
-                        ),
+                            createdAt = initial?.createdAt ?: System.currentTimeMillis()
+                        )
                     )
-                },
+                }
             ) { Text("Save") }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("Cancel") }
-        },
+        }
     )
 }
 

@@ -25,7 +25,7 @@ data class HistoryUiState(
     val items: List<HistoryItem> = emptyList(),
     val query: String = "",
     val filter: InputType? = null,
-    val loading: Boolean = true,
+    val loading: Boolean = true
 )
 
 /**
@@ -54,7 +54,7 @@ class HistoryViewModel(private val container: AppContainer) : ViewModel() {
         viewModelScope.launch {
             combine(
                 queryFlow.debounce { if (it.isBlank()) 0L else SEARCH_DEBOUNCE_MS },
-                filterFlow,
+                filterFlow
             ) { searchText, type -> searchText to type }
                 .flatMapLatest { (searchText, type) ->
                     val base = if (searchText.isBlank()) {

@@ -65,7 +65,7 @@ fun BatchScreen(modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         // Compose section: free text goes straight onto the queue.
         OutlinedTextField(
@@ -73,14 +73,14 @@ fun BatchScreen(modifier: Modifier = Modifier) {
             onValueChange = { input = it },
             label = { Text("Text to translate") },
             minLines = 3,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth()
         )
         Button(
             onClick = {
                 vm.addTextTask(input)
                 input = ""
             },
-            enabled = input.isNotBlank(),
+            enabled = input.isNotBlank()
         ) {
             Text("Add to queue")
         }
@@ -90,42 +90,42 @@ fun BatchScreen(modifier: Modifier = Modifier) {
             val done = items.count { it.state == BatchState.DONE }
             Text(
                 text = "Processing $done / ${items.size}",
-                style = MaterialTheme.typography.labelLarge,
+                style = MaterialTheme.typography.labelLarge
             )
             LinearProgressIndicator(
                 progress = { if (items.isEmpty()) 0f else done.toFloat() / items.size },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
             )
         }
 
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth()
         ) {
             Button(
                 onClick = { vm.start(context) },
                 enabled = !state.running &&
                     items.any {
                         it.state == BatchState.PENDING || it.state == BatchState.FAILED
-                    },
+                    }
             ) {
                 Text("Translate All")
             }
             OutlinedButton(
                 onClick = { if (state.paused) vm.resume() else vm.pause() },
-                enabled = state.running,
+                enabled = state.running
             ) {
                 Text(if (state.paused) "Resume" else "Pause")
             }
             OutlinedButton(
                 onClick = { showCancelDialog = true },
-                enabled = state.running,
+                enabled = state.running
             ) {
                 Text("Cancel")
             }
             TextButton(
                 onClick = vm::clear,
-                enabled = !state.running,
+                enabled = !state.running
             ) {
                 Text("Clear")
             }
@@ -141,12 +141,12 @@ fun BatchScreen(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth(),
-                contentAlignment = Alignment.Center,
+                contentAlignment = Alignment.Center
             ) {
                 EmptyState(
                     icon = Icons.Outlined.Queue,
                     title = "Batch queue is empty",
-                    subtitle = "Add text to translate in bulk",
+                    subtitle = "Add text to translate in bulk"
                 )
             }
         } else {
@@ -154,7 +154,7 @@ fun BatchScreen(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(items, key = { it.task.id }) { taskState ->
                     BatchTaskItem(
@@ -162,11 +162,11 @@ fun BatchScreen(modifier: Modifier = Modifier) {
                         onCopy = {
                             AndroidUtils.copyToClipboard(
                                 context,
-                                taskState.result ?: "",
+                                taskState.result ?: ""
                             )
                         },
                         onRetry = { vm.retry(taskState.task.id) },
-                        onRemove = { vm.remove(taskState.task.id) },
+                        onRemove = { vm.remove(taskState.task.id) }
                     )
                 }
             }
@@ -182,46 +182,40 @@ fun BatchScreen(modifier: Modifier = Modifier) {
                 showCancelDialog = false
                 vm.cancelAll()
             },
-            onDismiss = { showCancelDialog = false },
+            onDismiss = { showCancelDialog = false }
         )
     }
 }
 
 /** One queue entry: label, language pair, state chip and per-state actions. */
 @Composable
-private fun BatchTaskItem(
-    taskState: BatchQueue.TaskState,
-    onCopy: () -> Unit,
-    onRetry: () -> Unit,
-    onRemove: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun BatchTaskItem(taskState: BatchQueue.TaskState, onCopy: () -> Unit, onRetry: () -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
     val task = taskState.task
     ElevatedCard(modifier = modifier.fillMaxWidth()) {
         Column(
-            modifier = Modifier.padding(start = 16.dp, top = 12.dp, end = 4.dp, bottom = 12.dp),
+            modifier = Modifier.padding(start = 16.dp, top = 12.dp, end = 4.dp, bottom = 12.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = task.label,
-                        style = MaterialTheme.typography.titleSmall,
+                        style = MaterialTheme.typography.titleSmall
                     )
                     Text(
                         text = "${task.source.displayName} → ${task.target.displayName}",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 StateChip(state = taskState.state)
                 IconButton(onClick = onRemove) {
                     Icon(
                         imageVector = Icons.Outlined.Close,
-                        contentDescription = "Remove from queue",
+                        contentDescription = "Remove from queue"
                     )
                 }
             }
@@ -231,19 +225,19 @@ private fun BatchTaskItem(
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.Top,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Text(
                             text = taskState.result.orEmpty(),
                             style = MaterialTheme.typography.bodyMedium,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.weight(1f)
                         )
                         IconButton(onClick = onCopy) {
                             Icon(
                                 imageVector = Icons.Outlined.ContentCopy,
-                                contentDescription = "Copy result",
+                                contentDescription = "Copy result"
                             )
                         }
                     }
@@ -252,18 +246,18 @@ private fun BatchTaskItem(
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.Top,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Text(
                             text = taskState.error ?: "Translation failed.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.weight(1f)
                         )
                         IconButton(onClick = onRetry) {
                             Icon(
                                 imageVector = Icons.Outlined.Refresh,
-                                contentDescription = "Retry task",
+                                contentDescription = "Retry task"
                             )
                         }
                     }
@@ -281,39 +275,39 @@ private fun StateChip(state: BatchState, modifier: Modifier = Modifier) {
         BatchState.PENDING -> Triple(
             "Pending",
             MaterialTheme.colorScheme.outlineVariant,
-            MaterialTheme.colorScheme.onSurfaceVariant,
+            MaterialTheme.colorScheme.onSurfaceVariant
         )
         BatchState.RUNNING -> Triple(
             "Running",
             MaterialTheme.colorScheme.primary,
-            MaterialTheme.colorScheme.onPrimary,
+            MaterialTheme.colorScheme.onPrimary
         )
         BatchState.DONE -> Triple(
             "Done",
             MaterialTheme.colorScheme.tertiaryContainer,
-            MaterialTheme.colorScheme.onTertiaryContainer,
+            MaterialTheme.colorScheme.onTertiaryContainer
         )
         BatchState.FAILED -> Triple(
             "Failed",
             MaterialTheme.colorScheme.errorContainer,
-            MaterialTheme.colorScheme.onErrorContainer,
+            MaterialTheme.colorScheme.onErrorContainer
         )
         BatchState.CANCELLED -> Triple(
             "Cancelled",
             MaterialTheme.colorScheme.secondaryContainer,
-            MaterialTheme.colorScheme.onSecondaryContainer,
+            MaterialTheme.colorScheme.onSecondaryContainer
         )
     }
     Surface(
         shape = MaterialTheme.shapes.small,
         color = containerColor,
         contentColor = contentColor,
-        modifier = modifier,
+        modifier = modifier
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
         )
     }
 }

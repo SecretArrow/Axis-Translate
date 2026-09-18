@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -138,7 +137,7 @@ class LibraryDaoTest {
         val repository = FavoritesRepositoryImpl(database.favoriteDao())
 
         val firstId = repository.add(
-            favoriteItem(sourceText = "kopi", translatedText = "coffee", note = "morning drink"),
+            favoriteItem(sourceText = "kopi", translatedText = "coffee", note = "morning drink")
         )
         repository.add(favoriteItem(sourceText = "teh", translatedText = "tea"))
         assertEquals(2, repository.observe().first().size)
@@ -148,8 +147,8 @@ class LibraryDaoTest {
                 id = firstId,
                 sourceText = "kopi susu",
                 translatedText = "milk coffee",
-                note = "updated",
-            ),
+                note = "updated"
+            )
         )
         val afterUpdate = repository.observe().first()
         assertEquals(2, afterUpdate.size)
@@ -201,7 +200,7 @@ class LibraryDaoTest {
         sourceCode: String = "en",
         targetCode: String = "id",
         sourceText: String = "source",
-        translatedText: String = "terjemahan",
+        translatedText: String = "terjemahan"
     ) = HistoryEntity(
         timestamp = timestamp,
         sourceCode = sourceCode,
@@ -213,36 +212,26 @@ class LibraryDaoTest {
         detectedLanguageCode = null,
         photoPath = null,
         ocrText = null,
-        durationMs = 250L,
+        durationMs = 250L
     )
 
-    private fun favoriteItem(
-        id: Long = 0L,
-        sourceText: String,
-        translatedText: String,
-        note: String = "",
-    ) = FavoriteItem(
+    private fun favoriteItem(id: Long = 0L, sourceText: String, translatedText: String, note: String = "") = FavoriteItem(
         id = id,
         timestamp = 1_000L,
         sourceCode = "en",
         targetCode = "id",
         sourceText = sourceText,
         translatedText = translatedText,
-        note = note,
+        note = note
     )
 
-    private fun glossaryTerm(
-        source: String,
-        target: String,
-        createdAt: Long,
-        enabled: Boolean = true,
-    ) = GlossaryTerm(
+    private fun glossaryTerm(source: String, target: String, createdAt: Long, enabled: Boolean = true) = GlossaryTerm(
         source = source,
         target = target,
         sourceCode = "en",
         targetCode = "id",
         caseSensitive = false,
         enabled = enabled,
-        createdAt = createdAt,
+        createdAt = createdAt
     )
 }
