@@ -1,4 +1,5 @@
-# Release — release APKs split per ABI + GitHub Release.
+# Release — Android APKs split per ABI + Desktop packages (Windows/Linux) +
+# GitHub Release.
 #
 # Runs automatically when the "E2E" workflow completes successfully on main
 # (workflow_run chaining), on version tags (v*), or manually via workflow_dispatch.
@@ -22,7 +23,10 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  release:
+  # ==========================================================================
+  # Android: release APKs split per ABI
+  # ==========================================================================
+  android:
     # Skip when the triggering E2E run failed (tag pushes / manual dispatch always allowed).
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
@@ -42,16 +46,17 @@ jobs:
       - name: Set up Gradle (with caching)
         uses: gradle/actions/setup-gradle@v4
 
-      # Splits configured in app/build.gradle.kts: arm64-v8a, armeabi-v7a,
-      # x86, x86_64 — no universal APK (-Paxis.splitApks=true).
+      # Splits configured in android/app/build.gradle.kts: arm64-v8a,
+      # armeabi-v7a, x86, x86_64 — no universal APK (-Paxis.splitApks=true).
       - name: Build release APKs (split per ABI)
+        working-directory: android
         run: >-
           ./gradlew assembleRelease -Paxis.splitApks=true
           -Paxis.buildNumber=${{ github.run_number }} --stacktrace
 
-      # app-<abi>-release.apk -> AxisTranslate-v<version>-<abi>.apk (+ SHA256SUMS.txt)
+      # app-<abi>-release.apk -> AxisTranslate-v<version>-<abi>.apk
       - name: Collect and rename split APKs
-        id: collect_apks
+        working-directory: android
         run: |
           set -euo pipefail
           VERSION="1.0.${{ github.run_number }}"
@@ -73,9 +78,112 @@ jobs:
             echo "::error::No release APKs found in $OUT_DIR — refusing to publish a release"
             exit 1
           fi
-          ( cd "$OUT_DIR" && sha256sum "AxisTranslate-v${VERSION}-"*.apk > SHA256SUMS.txt )
-          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           ls -la "$OUT_DIR"
+
+      - name: Upload APKs (job artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-apks
+          path: android/app/build/outputs/apk/release/*.apk
+
+  # ==========================================================================
+  # Desktop: release packages for Ubuntu and Windows
+  # ==========================================================================
+  desktop:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Cache desktop build (llama.cpp + SDL2 sources/objects)
+        uses: actions/cache@v4
+        with:
+          path: desktop/build
+          key: desktop-release-build-${{ runner.os }}-${{ hashFiles('desktop/CMakeLists.txt', 'desktop/src/*.c') }}
+          restore-keys: |
+            desktop-release-build-${{ runner.os }}-
+
+      - name: Install Linux dependencies (SDL2 + libcurl)
+        if: ${{ runner.os == 'Linux' }}
+        run: sudo apt-get update && sudo apt-get install -y libsdl2-dev libcurl4-openssl-dev
+
+      - name: Configure (CMake)
+        run: cmake -S desktop -B desktop/build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build desktop/build --config Release --parallel
+
+      - name: Package (Linux)
+        if: ${{ runner.os == 'Linux' }}
+        run: |
+          set -euo pipefail
+          VERSION="1.0.${{ github.run_number }}"
+          STAGE="desktop/dist/AxisTranslateDesktop"
+          mkdir -p "$STAGE"
+          cp desktop/build/axis-translate "$STAGE/"
+          cp desktop/README.md "$STAGE/"
+          cp desktop/assets/model_manifest.json "$STAGE/"
+          mkdir -p desktop/dist
+          tar -czf "desktop/dist/AxisTranslateDesktop-v${VERSION}-linux-x64.tar.gz" -C desktop/dist AxisTranslateDesktop
+          ls -la desktop/dist
+
+      - name: Package (Windows)
+        if: ${{ runner.os == 'Windows' }}
+        run: |
+          $VERSION = "1.0.${{ github.run_number }}"
+          $STAGE = "desktop/dist/AxisTranslateDesktop"
+          New-Item -ItemType Directory -Force -Path "$STAGE" | Out-Null
+          Copy-Item desktop/build/Release/axis-translate.exe "$STAGE/"
+          Copy-Item desktop/README.md "$STAGE/"
+          Copy-Item desktop/assets/model_manifest.json "$STAGE/"
+          Compress-Archive -Path "$STAGE/*" -DestinationPath "desktop/dist/AxisTranslateDesktop-v$VERSION-windows-x64.zip" -Force
+          Get-ChildItem desktop/dist
+        shell: pwsh
+
+      - name: Upload desktop package (job artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-desktop-${{ runner.os }}
+          path: |
+            desktop/dist/*.tar.gz
+            desktop/dist/*.zip
+
+  # ==========================================================================
+  # Publish: checksums + GitHub Release with every artifact
+  # ==========================================================================
+  publish:
+    needs: [android, desktop]
+    if: ${{ always() && !cancelled() && needs.android.result == 'success' && needs.desktop.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release
+
+      - name: Collect artifacts + checksums
+        run: |
+          set -euo pipefail
+          VERSION="1.0.${{ github.run_number }}"
+          mkdir -p out
+          find release -name '*.apk' -exec cp {} out/ \;
+          find release -name '*.tar.gz' -exec cp {} out/ \;
+          find release -name '*.zip' -exec cp {} out/ \;
+          if [ "$(ls out | wc -l)" -eq 0 ]; then
+            echo "::error::No release artifacts were produced"
+            exit 1
+          fi
+          ( cd out && sha256sum * > SHA256SUMS.txt )
+          ls -la out
 
       - name: Determine release tag
         id: tag
@@ -83,12 +191,10 @@ jobs:
           if [[ "$GITHUB_REF" == refs/tags/* ]]; then
             echo "tag=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
           else
-            echo "tag=v${{ steps.collect_apks.outputs.version }}" >> "$GITHUB_OUTPUT"
+            echo "tag=v1.0.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
           fi
 
-      # Guard: publish only when APKs were actually produced.
       - name: Publish GitHub Release
-        if: ${{ hashFiles('app/build/outputs/apk/release/*.apk') != '' }}
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
@@ -99,21 +205,29 @@ jobs:
           body: |
             ## Axis Translate ${{ steps.tag.outputs.tag }}
 
-            **Offline AI translation for Android** — all translation, OCR and LLM inference run on your
-            device via llama.cpp. No cloud, no accounts, no telemetry.
+            **Offline AI translation for Android, Windows and Linux** — all translation, OCR and
+            LLM inference run on your device via llama.cpp. No cloud, no accounts, no telemetry.
 
-            ### Downloads — APKs are split per ABI
+            ### Downloads — Android (APKs are split per ABI)
 
             Pick the artifact matching your device:
 
             | Artifact | Best for |
             | --- | --- |
-            | `AxisTranslate-v${{ steps.collect_apks.outputs.version }}-arm64-v8a.apk` | **Modern 64-bit devices (recommended)** |
-            | `AxisTranslate-v${{ steps.collect_apks.outputs.version }}-armeabi-v7a.apk` | Older 32-bit ARM devices |
-            | `AxisTranslate-v${{ steps.collect_apks.outputs.version }}-x86.apk` | 32-bit x86 devices |
-            | `AxisTranslate-v${{ steps.collect_apks.outputs.version }}-x86_64.apk` | Emulators / x86_64 devices |
+            | `AxisTranslate-v1.0.${{ github.run_number }}-arm64-v8a.apk` | **Modern 64-bit devices (recommended)** |
+            | `AxisTranslate-v1.0.${{ github.run_number }}-armeabi-v7a.apk` | Older 32-bit ARM devices |
+            | `AxisTranslate-v1.0.${{ github.run_number }}-x86.apk` | 32-bit x86 devices |
+            | `AxisTranslate-v1.0.${{ github.run_number }}-x86_64.apk` | Emulators / x86_64 devices |
 
-            - No universal APK is published — each artifact contains only the native libraries for its ABI.
+            ### Downloads — Desktop
+
+            | Artifact | Platform |
+            | --- | --- |
+            | `AxisTranslateDesktop-v1.0.${{ github.run_number }}-linux-x64.tar.gz` | Ubuntu Linux (64-bit) |
+            | `AxisTranslateDesktop-v1.0.${{ github.run_number }}-windows-x64.zip` | Windows 10/11 (64-bit) |
+
+            - No universal APK is published — each Android artifact contains only the native
+              libraries for its ABI.
             - Verify downloads against `SHA256SUMS.txt`.
 
             ### First launch
@@ -122,7 +236,6 @@ jobs:
               verified with **SHA-256** before it is activated.
             - After the model is installed, **all inference runs fully offline** (airplane mode works).
           files: |
-            app/build/outputs/apk/release/AxisTranslate-v${{ steps.collect_apks.outputs.version }}-*.apk
-            app/build/outputs/apk/release/SHA256SUMS.txt
+            out/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

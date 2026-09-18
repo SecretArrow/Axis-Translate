@@ -1,4 +1,4 @@
-# CI — quality gate for Axis Translate.
+# CI — quality gate for Axis Translate (Android + Desktop).
 #
 # Chain: CI (this file) -> E2E (workflow_run) -> Release (workflow_run).
 # Runs on: push to main, version tags, PRs to main, manual dispatch.
@@ -29,9 +29,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  quality:
+  # ==========================================================================
+  # Android: ktlint auto-fix, then quality checks + debug build
+  # ==========================================================================
+  android:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: android
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -91,11 +97,79 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          path: android/app/build/outputs/apk/debug/*.apk
 
       - name: Upload test/lint reports (on failure)
         if: ${{ failure() }}
         uses: actions/upload-artifact@v4
         with:
           name: ci-failure-reports
-          path: app/build/reports/**
+          path: android/app/build/reports/**
+
+  # ==========================================================================
+  # Desktop: C11 app — build + unit tests on Ubuntu and Windows
+  # ==========================================================================
+  desktop:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Cache desktop build (llama.cpp + SDL2 sources/objects)
+        uses: actions/cache@v4
+        with:
+          path: desktop/build
+          key: desktop-build-${{ runner.os }}-${{ hashFiles('desktop/CMakeLists.txt', 'desktop/src/*.c') }}
+          restore-keys: |
+            desktop-build-${{ runner.os }}-
+
+      # ktlint auto-fix ended this run early — skip everything else too.
+      - name: Short-circuit when the auto-fix step pushed
+        id: shortcircuit
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[auto-fix]') }}
+        run: echo "skip=true" >> "$GITHUB_OUTPUT"
+
+      - name: Install Linux dependencies (SDL2 + libcurl)
+        if: ${{ runner.os == 'Linux' && steps.shortcircuit.outputs.skip != 'true' }}
+        run: sudo apt-get update && sudo apt-get install -y libsdl2-dev libcurl4-openssl-dev
+
+      - name: Configure (CMake)
+        if: ${{ steps.shortcircuit.outputs.skip != 'true' }}
+        run: cmake -S desktop -B desktop/build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        if: ${{ steps.shortcircuit.outputs.skip != 'true' }}
+        run: cmake --build desktop/build --config Release --parallel
+
+      - name: Unit tests (CTest)
+        if: ${{ steps.shortcircuit.outputs.skip != 'true' }}
+        run: ctest --test-dir desktop/build --build-config Release --output-on-failure
+
+      - name: Headless smoke run (Linux)
+        if: ${{ runner.os == 'Linux' && steps.shortcircuit.outputs.skip != 'true' }}
+        env:
+          SDL_VIDEODRIVER: dummy
+          SDL_AUDIODRIVER: dummy
+        run: timeout 60 ./desktop/build/axis-translate --smoke
+
+      - name: Version smoke run (Windows)
+        if: ${{ runner.os == 'Windows' && steps.shortcircuit.outputs.skip != 'true' }}
+        run: ./desktop/build/Release/axis-translate.exe --version
+        shell: pwsh
+
+      - name: Upload binary artifact
+        if: ${{ steps.shortcircuit.outputs.skip != 'true' && success() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-binaries-${{ runner.os }}
+          path: |
+            desktop/build/axis-translate
+            desktop/build/Release/axis-translate.exe
+          if-no-files-found: ignore

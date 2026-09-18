@@ -29,6 +29,10 @@ captures/
 # Native build caches
 .ccache/
 
+# Desktop (C edition) build + packaging outputs
+desktop/build/
+desktop/dist/
+
 # Logs / OS
 *.log
 .DS_Store

@@ -8,8 +8,9 @@ updates:
     schedule:
       interval: "weekly"
 
-  # Gradle dependencies and the version catalog (gradle/libs.versions.toml)
+  # Gradle dependencies and the version catalog
+  # (gradle/libs.versions.toml) — the Android project lives in android/
   - package-ecosystem: "gradle"
-    directory: "/"
+    directory: "/android"
     schedule:
       interval: "weekly"

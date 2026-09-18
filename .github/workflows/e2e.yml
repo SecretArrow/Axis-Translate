@@ -62,7 +62,7 @@ jobs:
           disable-animations: true
           script: |
             adb shell settings put global window_animation_scale 0 || true
-            ./gradlew connectedDebugAndroidTest -Paxis.abis=x86_64 -Paxis.buildNumber=${{ github.run_number }} --stacktrace
+            cd android && ./gradlew connectedDebugAndroidTest -Paxis.abis=x86_64 -Paxis.buildNumber=${{ github.run_number }} --stacktrace
 
       - name: Upload instrumented test results (on failure)
         if: ${{ failure() }}
@@ -70,5 +70,5 @@ jobs:
         with:
           name: e2e-failure-reports
           path: |
-            app/build/outputs/androidTest-results/connected/**
-            app/build/reports/**
+            android/app/build/outputs/androidTest-results/connected/**
+            android/app/build/reports/**

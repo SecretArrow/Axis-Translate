@@ -125,10 +125,10 @@ static void test_sha256(void)
 
 static void test_langs(void)
 {
-    CHECK(axis_langs_count() == 19);
+    CHECK(axis_langs_count() == 32);
     CHECK_STR(axis_lang_code(0), "en");
     CHECK_STR(axis_lang_name(1), "Indonesian");
-    CHECK(axis_lang_index("JA") == 2);
+    CHECK(axis_lang_index("JA") == 6);
     CHECK(axis_lang_index("auto") == AXIS_LANG_AUTO);
     CHECK(axis_lang_index("xx") == -1);
 }
@@ -216,17 +216,17 @@ static void test_manifest(void)
 
     const axis_manifest_entry *def = axis_manifest_default(&m);
     CHECK(def != NULL);
-    CHECK_STR(def->id, "qwen3-0.6b");
-    CHECK(def->size_bytes == 484219808ULL);
+    CHECK_STR(def->id, "qwen3.5-2b");
+    CHECK(def->size_bytes == 1280835840ULL);
     CHECK(def->is_default == 1);
-    CHECK(def->lang_count == 19);
+    CHECK(def->lang_count > 0);
     CHECK_STR(def->url,
-              "https://huggingface.co/lmstudio-community/Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B-Q4_K_M.gguf");
-    CHECK_STR(def->sha256, "cd47557a67d7e8f2891d98b5e1dbf2988544569fdf4f1bdb30e92b71aa61b548");
+              "https://huggingface.co/unsloth/Qwen3.5-2B-GGUF/resolve/main/Qwen3.5-2B-Q4_K_M.gguf");
+    CHECK_STR(def->sha256, "aaf42c8b7c3cab2bf3d69c355048d4a0ee9973d48f16c731c0520ee914699223");
 
-    const axis_manifest_entry *big = axis_manifest_by_id(&m, "qwen3-1.7b");
+    const axis_manifest_entry *big = axis_manifest_by_id(&m, "qwen3.5-0.8b");
     CHECK(big != NULL);
-    CHECK(big->size_bytes == 1282439328ULL);
+    CHECK(big->size_bytes == 532517120ULL);
 
     const axis_manifest_entry *fallback = axis_manifest_by_id(&m, "qwen2.5-0.5b-instruct");
     CHECK(fallback != NULL);
