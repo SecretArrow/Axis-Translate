@@ -146,12 +146,12 @@ static void test_chunker(void)
     n = axis_chunk_text("First para.\n\nSecond para.", 25, out, AXIS_CHUNK_MAX);
     CHECK(n == 2);
     CHECK(out[0].len == 11);
-    CHECK(out[1].len == 11);
+    CHECK(out[1].len == 12);
 
     /* long paragraph gets split at sentence ends */
-    char big[1200 + 256];
+    char big[2600];
     size_t pos = 0;
-    for (int i = 0; i < 40; i++) {
+    for (int i = 0; i < 80; i++) {
         pos += (size_t)snprintf(big + pos, sizeof(big) - pos, "Sentence %d goes here. ", i);
     }
     n = axis_chunk_text(big, pos, out, AXIS_CHUNK_MAX);

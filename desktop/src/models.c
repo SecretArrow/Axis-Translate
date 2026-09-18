@@ -15,7 +15,9 @@
 void axis_models_format_bytes(uint64_t bytes, char *out, size_t n)
 {
     if (!out || n == 0) return;
-    if (bytes >= (1024ULL * 1024ULL * 1024ULL)) {
+    if (bytes >= (1024ULL * 1024ULL * 1024ULL * 1024ULL)) {
+        snprintf(out, n, "%.2f TB", (double)bytes / (1024.0 * 1024.0 * 1024.0 * 1024.0));
+    } else if (bytes >= (1024ULL * 1024ULL * 1024ULL)) {
         snprintf(out, n, "%.2f GB", (double)bytes / (1024.0 * 1024.0 * 1024.0));
     } else if (bytes >= (1024ULL * 1024ULL)) {
         snprintf(out, n, "%.1f MB", (double)bytes / (1024.0 * 1024.0));
