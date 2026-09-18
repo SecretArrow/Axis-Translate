@@ -45,7 +45,11 @@ int main(int argc, char **argv)
             return 0;
         }
         if (strcmp(argv[i], "--smoke") == 0) {
+#ifdef _WIN32
+            _putenv_s("AXIS_SMOKE", "1");
+#else
             setenv("AXIS_SMOKE", "1", 1);
+#endif
             continue;
         }
     }

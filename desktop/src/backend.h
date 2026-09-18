@@ -7,6 +7,9 @@
 #include "nk_config.h"
 #include "platform.h"
 
+/* Prevent SDL.h from renaming main() to SDL_main on Windows — we provide a
+ * plain console main() and do not link SDL2main. */
+#define SDL_MAIN_HANDLED
 #include <SDL.h>
 
 #ifdef __cplusplus

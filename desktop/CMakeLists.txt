@@ -113,6 +113,8 @@ set(AXIS_APP_SOURCES
     src/fs.c
     src/sha256.c
     src/str.c
+    src/platform_win.c       # no-op on Linux (#ifdef _WIN32)
+    src/platform_posix.c     # no-op on Windows (#ifndef _WIN32)
 )
 if(WIN32)
     list(REMOVE_ITEM AXIS_APP_SOURCES src/download_curl.c)

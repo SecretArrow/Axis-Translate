@@ -2,17 +2,20 @@
  *
  * Adapted from Nuklear's official demo/sdl_renderer/nuklear_sdl_renderer.h
  * (public domain, v4.13.3) with additions: system font discovery, DPI
- * handling, clipboard helpers, and per-frame timing. */
+ * handling, clipboard helpers, and per-frame timing.
+ *
+ * NK_IMPLEMENTATION must be defined before the FIRST inclusion of
+ * nuklear.h in this translation unit — backend.h (via nk_config.h) includes
+ * it for declarations, and nuklear's own include guard would silently skip
+ * the implementation if it came second. */
+#define NK_IMPLEMENTATION
+
 #include "backend.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define NK_IMPLEMENTATION
-#include "nk_config.h"
-
-#define SDL_MAIN_HANDLED
 #include <SDL.h>
 
 /* ------------------------------------------------------------- device ---- */
