@@ -8,10 +8,14 @@ import com.axis.translate.data.repo.ModelRepository
 import com.axis.translate.data.settings.SettingsRepository
 import com.axis.translate.domain.EngineConfig
 import com.axis.translate.domain.LanguageDetector
+import com.axis.translate.domain.OcrEngine
 import com.axis.translate.domain.PromptBuilder
 import com.axis.translate.domain.TextChunker
 import com.axis.translate.domain.TranslationEngine
 import com.axis.translate.domain.TranslationManager
+import com.axis.translate.domain.documents.DocumentProcessor
+import com.axis.translate.domain.voice.SpeechRecognitionHelper
+import com.axis.translate.domain.voice.TextSpeaker
 
 /**
  * Manual dependency container — deliberately framework-free for build speed
@@ -26,6 +30,10 @@ interface AppContainer {
     val languageDetector: LanguageDetector
     val textChunker: TextChunker
     val promptBuilder: PromptBuilder
+    val ocrEngine: OcrEngine
+    val textSpeaker: TextSpeaker
+    val speechRecognizer: SpeechRecognitionHelper
+    val documentProcessor: DocumentProcessor
     val translationManager: TranslationManager
 }
 
@@ -88,6 +96,22 @@ class DefaultAppContainer(private val appContext: Context) : AppContainer {
 
     override val languageDetector: LanguageDetector by lazy {
         com.axis.translate.domain.HeuristicLanguageDetector()
+    }
+
+    override val ocrEngine: OcrEngine by lazy {
+        com.axis.translate.data.ocr.MlKitOcrEngine(appContext)
+    }
+
+    override val textSpeaker: TextSpeaker by lazy {
+        com.axis.translate.domain.voice.AndroidTextSpeaker(appContext)
+    }
+
+    override val speechRecognizer: SpeechRecognitionHelper by lazy {
+        com.axis.translate.domain.voice.AndroidSpeechRecognizer()
+    }
+
+    override val documentProcessor: DocumentProcessor by lazy {
+        com.axis.translate.domain.documents.HtmlDocumentProcessor()
     }
 
     override val textChunker: TextChunker by lazy {
