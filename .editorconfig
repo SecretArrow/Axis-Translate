@@ -1,0 +1,24 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{yml,yaml,json,xml,md}]
+indent_size = 2
+
+[*.{kt,kts}]
+ktlint_code_style = android_studio
+# Compose screens use PascalCase composable functions by convention
+ktlint_standard_function-naming = disabled
+# Dependency catalogs produce wildcard-ish long imports in generated code paths
+ktlint_standard_no-wildcard-imports = disabled
+max_line_length = 160
+ij_kotlin_imports_layout = *
+
+[*.{cpp,h,c,hpp}]
+indent_size = 4

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Axis Translate</string>
+    <string name="tile_label">Axis Translate</string>
+
+    <!-- Home -->
+    <string name="hint_input">Type or paste text…</string>
+    <string name="action_translate">Translate</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_paste">Paste</string>
+    <string name="action_copy">Copy</string>
+    <string name="action_share">Share</string>
+    <string name="action_speak">Speak</string>
+    <string name="action_favorite">Favorite</string>
+    <string name="action_retry">Retry</string>
+    <string name="action_swap">Swap languages</string>
+    <string name="action_clear">Clear</string>
+    <string name="label_source_language">Source language</string>
+    <string name="label_target_language">Target language</string>
+    <string name="label_auto_detect">Auto Detect</string>
+    <string name="label_translation">Translation</string>
+    <string name="label_translating">Translating…</string>
+    <string name="label_offline_ai">Offline AI</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_camera">Camera</string>
+    <string name="nav_history">History</string>
+    <string name="nav_favorites">Favorites</string>
+    <string name="nav_settings">Settings</string>
+    <string name="nav_conversation">Conversation</string>
+    <string name="nav_glossary">Glossary</string>
+    <string name="nav_documents">Documents</string>
+    <string name="nav_batch">Batch</string>
+    <string name="nav_model">AI Model</string>
+
+    <!-- Model -->
+    <string name="model_not_installed">AI model is not installed.</string>
+    <string name="model_install">Install Model</string>
+    <string name="model_status_ready">Ready</string>
+    <string name="model_downloading">Downloading model…</string>
+    <string name="model_verifying">Verifying…</string>
+    <string name="model_verify_failed">Model verification failed. The file may be incomplete or corrupted.</string>
+    <string name="model_download_failed">Model download failed. Check your connection and try again.</string>
+    <string name="model_remove">Remove Model</string>
+    <string name="model_reload">Reload Model</string>
+    <string name="model_import">Import Model</string>
+
+    <!-- Errors -->
+    <string name="error_camera_open">Camera could not be opened.</string>
+    <string name="error_ocr_unavailable">Offline OCR is not available.</string>
+    <string name="error_no_text_detected">No text detected in this image.</string>
+    <string name="error_inference">The local AI engine could not complete the translation.</string>
+    <string name="error_memory">Not enough memory to process this request.</string>
+    <string name="error_unsupported_language">This language is not supported by the installed model.</string>
+    <string name="error_empty_input">Please enter some text to translate.</string>
+    <string name="error_offline_voice">Offline voice recognition is not available on this device.</string>
+    <string name="error_offline_tts">Offline voice is unavailable for this language.</string>
+
+    <!-- Camera / OCR -->
+    <string name="camera_capture">Capture</string>
+    <string name="camera_flash">Flash</string>
+    <string name="camera_gallery">Gallery</string>
+    <string name="camera_detecting">Detecting text…</string>
+    <string name="ocr_detected_text">Detected Text</string>
+    <string name="ocr_translate_all">Translate All</string>
+    <string name="ocr_low_confidence">Some words may be uncertain.</string>
+
+    <!-- Misc -->
+    <string name="search_hint">Search…</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_save">Save</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_close">Close</string>
+    <string name="action_confirm">Confirm</string>
+    <string name="empty_history">No translations yet. Start translating!</string>
+    <string name="empty_favorites">No favorites yet. Star a translation to save it here.</string>
+    <string name="empty_glossary">Glossary is empty. Add a term to keep translations consistent.</string>
+    <string name="cd_app_logo">Axis Translate logo</string>
+</resources>

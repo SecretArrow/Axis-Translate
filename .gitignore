@@ -1,0 +1,38 @@
+# Built application files
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# Java/Kotlin build outputs
+bin/
+build/
+out/
+*.class
+
+# Gradle
+.gradle/
+build/
+local.properties
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Keystore (keep the committed demo release keystore for CI reproducible signing)
+# If you replace it with your own, DO NOT commit the real one:
+# keystore/axis-translate-release.jks
+
+# Native build caches
+.ccache/
+
+# Logs / OS
+*.log
+.DS_Store
+
+# Secrets — never commit tokens or passwords
+*.env
+secrets.properties
