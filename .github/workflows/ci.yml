@@ -83,6 +83,7 @@ jobs:
         if: ${{ steps.ktlint_autofix.outputs.pushed != 'true' }}
         run: >-
           ./gradlew ktlintCheck lintDebug testDebugUnitTest assembleDebug
+          assembleDebugAndroidTest
           -Paxis.buildNumber=${{ github.run_number }} --stacktrace
 
       - name: Upload debug APK
