@@ -73,9 +73,9 @@ import com.axis.translate.ui.components.LoadingOverlay
 import com.axis.translate.ui.navigation.PendingInput
 import com.axis.translate.util.AndroidUtils
 import com.axis.translate.util.rememberContainer
+import kotlin.math.roundToInt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlin.math.roundToInt
 
 /**
  * Photo translation screen: shared-image intake, pinch/rotate/pan viewer with
@@ -122,7 +122,7 @@ fun PhotoTranslateScreen(modifier: Modifier = Modifier) {
                         onDismiss = {
                             imageError = null
                             vm.dismissError()
-                        },
+                        }
                     )
                 }
                 Box(Modifier.weight(1f).fillMaxWidth()) {
@@ -130,7 +130,7 @@ fun PhotoTranslateScreen(modifier: Modifier = Modifier) {
                         icon = Icons.Outlined.Image,
                         title = "Photo translation",
                         subtitle = "Share an image with Axis Translate or use the camera",
-                        modifier = Modifier.align(Alignment.Center),
+                        modifier = Modifier.align(Alignment.Center)
                     )
                 }
             }
@@ -153,7 +153,7 @@ fun PhotoTranslateScreen(modifier: Modifier = Modifier) {
         Column(
             Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(rememberScrollState())
         ) {
             state.error?.let { error ->
                 ErrorBanner(message = error, onDismiss = { vm.dismissError() })
@@ -167,7 +167,7 @@ fun PhotoTranslateScreen(modifier: Modifier = Modifier) {
                     .heightIn(min = 240.dp, max = 440.dp)
                     .padding(horizontal = 16.dp, vertical = 8.dp)
                     .clip(RoundedCornerShape(16.dp))
-                    .transformable(transformState),
+                    .transformable(transformState)
             ) {
                 BoxWithConstraints(Modifier.fillMaxSize()) {
                     val bmpWidth = bitmap.width.coerceAtLeast(1)
@@ -197,13 +197,13 @@ fun PhotoTranslateScreen(modifier: Modifier = Modifier) {
                                 translationX = offset.x
                                 translationY = offset.y
                                 rotationZ = rotation
-                            },
+                            }
                     ) {
                         Image(
                             bitmap = bitmap.asImageBitmap(),
                             contentDescription = null,
                             modifier = Modifier.matchParentSize(),
-                            contentScale = ContentScale.Fit,
+                            contentScale = ContentScale.Fit
                         )
 
                         // Region outlines (original side of the comparison).
@@ -215,7 +215,7 @@ fun PhotoTranslateScreen(modifier: Modifier = Modifier) {
                                         color = outlineColor,
                                         topLeft = Offset(rect.left * s, rect.top * s),
                                         size = Size(rect.width() * s, rect.height() * s),
-                                        style = Stroke(width = 2.dp.toPx()),
+                                        style = Stroke(width = 2.dp.toPx())
                                     )
                                 }
                             }
@@ -229,14 +229,14 @@ fun PhotoTranslateScreen(modifier: Modifier = Modifier) {
                                     .offset {
                                         IntOffset(
                                             (rect.left * s).roundToInt(),
-                                            (rect.top * s).roundToInt(),
+                                            (rect.top * s).roundToInt()
                                         )
                                     }
                                     .size(
                                         with(density) { (rect.width() * s).toDp() },
-                                        with(density) { (rect.height() * s).toDp() },
+                                        with(density) { (rect.height() * s).toDp() }
                                     )
-                                    .clickable { vm.translateRegion(index) },
+                                    .clickable { vm.translateRegion(index) }
                             )
                         }
 
@@ -256,18 +256,18 @@ fun PhotoTranslateScreen(modifier: Modifier = Modifier) {
                                         .offset {
                                             IntOffset(
                                                 (rect.left * s).roundToInt(),
-                                                (rect.top * s).roundToInt(),
+                                                (rect.top * s).roundToInt()
                                             )
                                         }
                                         .size(
                                             with(density) { (rect.width() * s).toDp() },
-                                            with(density) { (rect.height() * s).toDp() },
+                                            with(density) { (rect.height() * s).toDp() }
                                         )
                                         .background(
-                                            MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
+                                            MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)
                                         )
                                         .clickable { vm.translateRegion(index) }
-                                        .padding(2.dp),
+                                        .padding(2.dp)
                                 )
                             }
                         }
@@ -281,7 +281,7 @@ fun PhotoTranslateScreen(modifier: Modifier = Modifier) {
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 IconButton(onClick = { rotation += 90f }) {
                     Icon(Icons.Filled.RotateRight, contentDescription = "Rotate image")
@@ -291,7 +291,7 @@ fun PhotoTranslateScreen(modifier: Modifier = Modifier) {
                         scale = 1f
                         offset = Offset.Zero
                         rotation = 0f
-                    },
+                    }
                 ) {
                     Icon(Icons.Filled.RestartAlt, contentDescription = "Reset view")
                 }
@@ -302,13 +302,13 @@ fun PhotoTranslateScreen(modifier: Modifier = Modifier) {
                             onClick = { vm.setCompare(mode) },
                             shape = SegmentedButtonDefaults.itemShape(
                                 index = index,
-                                count = CompareMode.entries.size,
+                                count = CompareMode.entries.size
                             ),
                             label = {
                                 Text(
-                                    mode.name.lowercase().replaceFirstChar { it.uppercase() },
+                                    mode.name.lowercase().replaceFirstChar { it.uppercase() }
                                 )
-                            },
+                            }
                         )
                     }
                 }
@@ -320,12 +320,12 @@ fun PhotoTranslateScreen(modifier: Modifier = Modifier) {
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Button(
                     onClick = { vm.translateAll() },
                     enabled = state.ocr != null && !state.translating,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f)
                 ) {
                     Text("Translate All")
                 }
@@ -339,7 +339,7 @@ fun PhotoTranslateScreen(modifier: Modifier = Modifier) {
                 LinearProgressIndicator(
                     Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
+                        .padding(horizontal = 16.dp)
                 )
             }
 
@@ -348,22 +348,22 @@ fun PhotoTranslateScreen(modifier: Modifier = Modifier) {
                 Column(
                     Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             "Translation",
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.weight(1f)
                         )
                         IconButton(
-                            onClick = { AndroidUtils.copyToClipboard(context, full) },
+                            onClick = { AndroidUtils.copyToClipboard(context, full) }
                         ) {
                             Icon(Icons.Outlined.ContentCopy, contentDescription = "Copy translation")
                         }
                         IconButton(
-                            onClick = { AndroidUtils.shareText(context, full) },
+                            onClick = { AndroidUtils.shareText(context, full) }
                         ) {
                             Icon(Icons.Outlined.Share, contentDescription = "Share translation")
                         }
@@ -381,33 +381,33 @@ fun PhotoTranslateScreen(modifier: Modifier = Modifier) {
                         Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Column(
                             Modifier.weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             Text(
                                 "Original",
                                 style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.SemiBold,
+                                fontWeight = FontWeight.SemiBold
                             )
                             ocr.regions.forEach { region ->
                                 Text(
                                     region.text,
                                     fontSize = 11.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
                         Column(
                             Modifier.weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             Text(
                                 "Translated",
                                 style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.SemiBold,
+                                fontWeight = FontWeight.SemiBold
                             )
                             ocr.regions.forEachIndexed { index, _ ->
                                 val translated = state.translatedRegions
@@ -417,7 +417,7 @@ fun PhotoTranslateScreen(modifier: Modifier = Modifier) {
                                 Text(
                                     translated,
                                     fontSize = 11.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
