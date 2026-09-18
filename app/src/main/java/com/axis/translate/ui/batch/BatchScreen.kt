@@ -104,10 +104,10 @@ fun BatchScreen(modifier: Modifier = Modifier) {
         ) {
             Button(
                 onClick = { vm.start(context) },
+                // The runner only processes PENDING items; FAILED items need an
+                // explicit "Retry failed" first, so gate the button on PENDING.
                 enabled = !state.running &&
-                    items.any {
-                        it.state == BatchState.PENDING || it.state == BatchState.FAILED
-                    }
+                    items.any { it.state == BatchState.PENDING }
             ) {
                 Text("Translate All")
             }

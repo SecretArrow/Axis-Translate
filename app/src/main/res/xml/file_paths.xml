@@ -2,4 +2,5 @@
 <paths>
     <files-path name="exports" path="exports/" />
     <cache-path name="shared" path="shared/" />
+    <files-path name="models" path="models/" />
 </paths>

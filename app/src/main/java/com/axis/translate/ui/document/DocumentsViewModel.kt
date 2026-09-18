@@ -177,6 +177,14 @@ class DocumentsViewModel(private val container: AppContainer) : ViewModel() {
         }
     }
 
+    /**
+     * Marks the published export URI as consumed (after the share sheet was
+     * launched), so exporting the same document again re-triggers sharing.
+     */
+    fun onExportConsumed() {
+        _uiState.update { it.copy(exportUri = null) }
+    }
+
     fun dismissError() {
         _uiState.update { it.copy(error = null) }
     }

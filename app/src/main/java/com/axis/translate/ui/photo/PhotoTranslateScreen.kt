@@ -134,7 +134,9 @@ fun PhotoTranslateScreen(modifier: Modifier = Modifier) {
                     )
                 }
             }
-            LoadingOverlay(visible = state.translating, label = "Translating…")
+            // While OCR runs the bitmap is not set yet: the screen is empty
+            // and the overlay covers the image-reading phase, not translation.
+            LoadingOverlay(visible = state.translating, label = "Reading text…")
         }
         return
     }

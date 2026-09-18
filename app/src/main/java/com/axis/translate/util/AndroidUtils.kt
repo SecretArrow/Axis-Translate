@@ -24,7 +24,10 @@ object AndroidUtils {
 
     fun clipboardText(context: Context): String? {
         val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager ?: return null
-        return cm.primaryClip?.getItemAt(0)?.coerceToText(context)?.toString()?.takeIf { it.isNotBlank() }
+        // Some OEM clipboard providers expose zero-item clips; getItemAt(0)
+        // would throw IndexOutOfBoundsException on those.
+        return cm.primaryClip?.takeIf { it.itemCount > 0 }
+            ?.getItemAt(0)?.coerceToText(context)?.toString()?.takeIf { it.isNotBlank() }
     }
 
     fun copyToClipboard(context: Context, text: String) {

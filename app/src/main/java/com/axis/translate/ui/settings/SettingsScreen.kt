@@ -2,6 +2,7 @@ package com.axis.translate.ui.settings
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -100,19 +101,63 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
         // Appearance
         // ------------------------------------------------------------------
         SectionHeader("Appearance")
-        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-            val themes = listOf(
-                ThemeMode.SYSTEM to "System",
-                ThemeMode.LIGHT to "Light",
-                ThemeMode.DARK to "Dark"
-            )
-            themes.forEachIndexed { index, (mode, label) ->
-                SegmentedButton(
-                    selected = settings.themeMode == mode,
-                    onClick = { vm.setTheme(mode) },
-                    shape = SegmentedButtonDefaults.itemShape(index = index, count = themes.size)
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.large,
+            color = MaterialTheme.colorScheme.surfaceContainer
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = "Theme",
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                        val themes = listOf(
+                            ThemeMode.SYSTEM to "System",
+                            ThemeMode.LIGHT to "Light",
+                            ThemeMode.DARK to "Dark"
+                        )
+                        themes.forEachIndexed { index, (mode, label) ->
+                            SegmentedButton(
+                                selected = settings.themeMode == mode,
+                                onClick = { vm.setTheme(mode) },
+                                shape = SegmentedButtonDefaults.itemShape(index = index, count = themes.size)
+                            ) {
+                                Text(label)
+                            }
+                        }
+                    }
+                }
+                // Material You wallpaper colors (Android 12+ only).
+                val dynamicColorAvailable = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(label)
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Dynamic color",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = if (dynamicColorAvailable) {
+                                "Match colors to your wallpaper"
+                            } else {
+                                "Requires Android 12+"
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Switch(
+                        checked = settings.dynamicColor,
+                        enabled = dynamicColorAvailable,
+                        onCheckedChange = vm::setDynamicColor
+                    )
                 }
             }
         }

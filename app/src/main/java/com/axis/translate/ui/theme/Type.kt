@@ -7,22 +7,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
 /**
- * App typography: platform default font family with tuned sizes/weights.
- * Display/headline styles are slightly tightened, titles use SemiBold for
- * stronger hierarchy on translation-centric screens.
+ * App typography: platform default font family with a tuned M3 scale.
+ * Display/headline styles are tightened for large text, titles lean on
+ * Medium/SemiBold weights for stronger hierarchy on translation-centric
+ * screens, and labels keep the compact M3 tracking.
  */
 val AxisTypography = Typography(
     displayLarge = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
-        fontSize = 56.sp,
+        fontSize = 57.sp,
         lineHeight = 64.sp,
         letterSpacing = (-0.25).sp
     ),
     displayMedium = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
-        fontSize = 44.sp,
+        fontSize = 45.sp,
         lineHeight = 52.sp,
         letterSpacing = 0.sp
     ),

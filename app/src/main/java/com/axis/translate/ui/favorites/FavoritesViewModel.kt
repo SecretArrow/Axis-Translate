@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -50,10 +49,12 @@ class FavoritesViewModel(private val container: AppContainer) : ViewModel() {
             queryFlow
                 .debounce { if (it.isBlank()) 0L else SEARCH_DEBOUNCE_MS }
                 .flatMapLatest { searchText ->
+                    // Room-backed flow either way: deletes/note edits/clears
+                    // re-emit the current search result too.
                     if (searchText.isBlank()) {
                         container.favoritesRepository.observe()
                     } else {
-                        flow { emit(container.favoritesRepository.search(searchText.trim())) }
+                        container.favoritesRepository.search(searchText.trim())
                     }
                 }
                 .collect { items ->
@@ -75,7 +76,24 @@ class FavoritesViewModel(private val container: AppContainer) : ViewModel() {
         viewModelScope.launch { container.favoritesRepository.delete(id) }
     }
 
+    /** Deletes a favorite and un-stars the matching history rows. */
+    fun delete(item: FavoriteItem) {
+        viewModelScope.launch {
+            container.favoritesRepository.delete(item.id)
+            container.historyRepository.setFavoriteByContent(
+                item.sourceCode,
+                item.targetCode,
+                item.sourceText,
+                favorite = false
+            )
+        }
+    }
+
     fun clearAll() {
-        viewModelScope.launch { container.favoritesRepository.clear() }
+        viewModelScope.launch {
+            container.favoritesRepository.clear()
+            // Keep history stars consistent with the now-empty favorites list.
+            container.historyRepository.clearFavoriteFlags()
+        }
     }
 }

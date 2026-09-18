@@ -7,6 +7,7 @@ import android.graphics.Matrix
 import android.media.ExifInterface
 import android.net.Uri
 import java.io.File
+import java.io.InputStream
 
 /**
  * Bitmap helpers for the camera flow (SPEC #12): bounds-first downsampled
@@ -27,7 +28,8 @@ internal object ImageUtils {
 
     /**
      * Decodes [uri] downsampled so its longest edge is at most [maxDimension].
-     * Opens the stream twice: once for bounds only, once for the real decode.
+     * Opens the stream once for bounds, once for the real decode and once for
+     * the EXIF orientation, which is applied so the result is upright.
      */
     fun decodeDownsampled(context: Context, uri: Uri, maxDimension: Int = 2048): Bitmap? = runCatching {
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
@@ -35,7 +37,13 @@ internal object ImageUtils {
         val options = BitmapFactory.Options().apply {
             inSampleSize = computeInSampleSize(bounds.outWidth, bounds.outHeight, maxDimension)
         }
-        context.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, options) }
+        val bitmap = context.contentResolver.openInputStream(uri)?.use {
+            BitmapFactory.decodeStream(it, null, options)
+        } ?: return@runCatching null
+        // BitmapFactory ignores EXIF orientation: gallery/camera photos would
+        // otherwise be decoded (and OCR'd) sideways.
+        val rotation = context.contentResolver.openInputStream(uri)?.use(::readExifRotation) ?: 0
+        rotateBitmap(bitmap, rotation)
     }.getOrNull()
 
     /**
@@ -55,16 +63,25 @@ internal object ImageUtils {
 
     /** Reads the EXIF orientation of [file] as a clockwise rotation of 0/90/180/270. */
     fun readExifRotation(file: File): Int = runCatching {
-        when (
+        orientationToDegrees(
             ExifInterface(file.absolutePath)
                 .getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
-        ) {
-            ExifInterface.ORIENTATION_ROTATE_90, ExifInterface.ORIENTATION_TRANSPOSE -> 90
-            ExifInterface.ORIENTATION_ROTATE_180 -> 180
-            ExifInterface.ORIENTATION_ROTATE_270, ExifInterface.ORIENTATION_TRANSVERSE -> 270
-            else -> 0
-        }
+        )
     }.getOrDefault(0)
+
+    /** Reads the EXIF orientation of a fresh [stream] as a clockwise rotation of 0/90/180/270. */
+    private fun readExifRotation(stream: InputStream): Int = runCatching {
+        orientationToDegrees(
+            ExifInterface(stream).getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+        )
+    }.getOrDefault(0)
+
+    private fun orientationToDegrees(orientation: Int): Int = when (orientation) {
+        ExifInterface.ORIENTATION_ROTATE_90, ExifInterface.ORIENTATION_TRANSPOSE -> 90
+        ExifInterface.ORIENTATION_ROTATE_180 -> 180
+        ExifInterface.ORIENTATION_ROTATE_270, ExifInterface.ORIENTATION_TRANSVERSE -> 270
+        else -> 0
+    }
 
     /** Largest power-of-two sample size keeping the decoded longest edge within [maxDimension]. */
     private fun computeInSampleSize(width: Int, height: Int, maxDimension: Int): Int {

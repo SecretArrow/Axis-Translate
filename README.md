@@ -173,8 +173,13 @@ activates it.
 
 | Model | Role | Notes |
 | --- | --- | --- |
-| **Hy-MT2-1.8B (1.25-bit)** | Primary translation engine | Dedicated neural translation model, extreme low-bit quantization for on-device inference; 19 languages |
-| **Qwen2.5-0.5B-Instruct Q4_K_M GGUF** | Verified fallback | Real, verified GGUF — 491 MB (491,400,032 bytes), Apache-2.0 (Qwen license), same llama.cpp runtime; instruction-driven translation quality |
+| **Qwen3.5 2B Q4_K_M GGUF** | Default — best quality | Latest-generation multilingual model (2026, 201 languages). Real, verified GGUF — 1,281 MB (1,280,835,840 bytes), Apache-2.0; recommended on devices with 4 GB RAM or more |
+| **Qwen3.5 0.8B Q4_K_M GGUF** | Fast & light | Same generation as the 2B variant, snappier on standard phones — 533 MB (532,517,120 bytes), Apache-2.0 |
+| **Qwen2.5-0.5B-Instruct Q4_K_M GGUF** | Verified fallback | 491 MB (491,400,032 bytes), Apache-2.0 (Qwen license), same llama.cpp runtime; instruction-driven translation quality |
+
+The engine applies each model's **own chat template** and pre-fills an empty
+reasoning block for hybrid-reasoning models (Qwen3 / Qwen3.5) so translations
+come back directly, without reasoning traces.
 
 - **The network is used only to download models** (first launch / model
   manager). After a model is installed, every translation is computed locally.

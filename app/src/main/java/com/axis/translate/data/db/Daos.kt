@@ -39,6 +39,22 @@ interface HistoryDao {
     @Query("UPDATE history SET isFavorite = :favorite WHERE id = :id")
     suspend fun setFavorite(id: Long, favorite: Boolean)
 
+    /** Cross-table sync: drop the star flag from every history row matching a removed favorite. */
+    @Query(
+        "UPDATE history SET isFavorite = :favorite " +
+            "WHERE sourceCode = :sourceCode AND targetCode = :targetCode AND sourceText = :sourceText"
+    )
+    suspend fun setFavoriteByContent(
+        sourceCode: String,
+        targetCode: String,
+        sourceText: String,
+        favorite: Boolean
+    )
+
+    /** Bulk star reset used when the user clears the favorites list in Settings. */
+    @Query("UPDATE history SET isFavorite = 0")
+    suspend fun clearFavoriteFlags()
+
     @Query("DELETE FROM history WHERE id = :id")
     suspend fun deleteById(id: Long)
 
@@ -59,6 +75,20 @@ interface FavoriteDao {
     @Query("DELETE FROM favorites WHERE id = :id")
     suspend fun deleteById(id: Long)
 
+    /** Dedup probe: the same source text in the same language pair is one favorite. */
+    @Query(
+        "SELECT * FROM favorites WHERE sourceCode = :sourceCode AND targetCode = :targetCode " +
+            "AND sourceText = :sourceText LIMIT 1"
+    )
+    suspend fun findByContent(sourceCode: String, targetCode: String, sourceText: String): FavoriteEntity?
+
+    /** Cross-table sync: remove the favorite rows matching an un-starred history entry. */
+    @Query(
+        "DELETE FROM favorites WHERE sourceCode = :sourceCode AND targetCode = :targetCode " +
+            "AND sourceText = :sourceText"
+    )
+    suspend fun deleteByContent(sourceCode: String, targetCode: String, sourceText: String)
+
     @Query("DELETE FROM favorites")
     suspend fun deleteAll()
 
@@ -70,7 +100,7 @@ interface FavoriteDao {
             "OR translatedText LIKE '%' || :query || '%' ESCAPE '\\' " +
             "ORDER BY timestamp DESC"
     )
-    suspend fun search(query: String): List<FavoriteEntity>
+    fun search(query: String): Flow<List<FavoriteEntity>>
 }
 
 /** Glossary table access. */

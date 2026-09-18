@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -43,6 +44,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -76,6 +78,15 @@ fun ConversationScreen(modifier: Modifier = Modifier) {
 
     var showVoiceHint by remember { mutableStateOf(false) }
     var menuForTurn by remember { mutableStateOf<String?>(null) }
+    val turnsListState = rememberLazyListState()
+
+    // Keep the newest turn visible: chat bubbles arrive below the fold
+    // otherwise (LazyColumn does not follow its content growth).
+    LaunchedEffect(state.turns.size) {
+        if (state.turns.isNotEmpty()) {
+            turnsListState.animateScrollToItem(state.turns.size - 1)
+        }
+    }
 
     val voiceLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -188,7 +199,8 @@ fun ConversationScreen(modifier: Modifier = Modifier) {
             }
         } else {
             LazyColumn(
-                Modifier
+                state = turnsListState,
+                modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth(),
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),

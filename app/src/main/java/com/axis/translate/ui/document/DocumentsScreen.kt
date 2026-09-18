@@ -26,10 +26,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -77,14 +73,13 @@ fun DocumentsScreen(modifier: Modifier = Modifier) {
         }
     }
 
-    // Share exactly once per exported URI (survives configuration changes).
-    var lastSharedUri by rememberSaveable { mutableStateOf<String?>(null) }
+    // Share exactly once per published export URI: the URI is consumed right
+    // after the share sheet launches, so a re-export of the same file shares
+    // again while a configuration change alone never re-shares.
     LaunchedEffect(state.exportUri) {
         state.exportUri?.let { uri ->
-            if (lastSharedUri != uri.toString()) {
-                lastSharedUri = uri.toString()
-                AndroidUtils.shareFile(context, uri, "text/plain", "Share translated document")
-            }
+            AndroidUtils.shareFile(context, uri, "text/plain", "Share translated document")
+            vm.onExportConsumed()
         }
     }
 

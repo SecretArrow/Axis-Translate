@@ -15,15 +15,16 @@ import com.google.mlkit.vision.text.devanagari.DevanagariTextRecognizerOptions
 import com.google.mlkit.vision.text.japanese.JapaneseTextRecognizerOptions
 import com.google.mlkit.vision.text.korean.KoreanTextRecognizerOptions
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import com.google.mlkit.vision.text.thai.ThaiTextRecognizerOptions
 import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * Fully offline OCR backed by the bundled ML Kit on-device recognizers.
  *
- * Five script-specific recognizers (Latin, Chinese, Japanese, Korean,
- * Devanagari) run sequentially over the same image; the result carrying the
- * longest non-blank text wins. Everything runs on device — no network access.
+ * Six script-specific recognizers (Latin, Chinese, Japanese, Korean,
+ * Devanagari, Thai) run sequentially over the same image; the result carrying
+ * the longest non-blank text wins. Everything runs on device — no network access.
  */
 class MlKitOcrEngine(private val context: Context) : OcrEngine {
 
@@ -33,7 +34,8 @@ class MlKitOcrEngine(private val context: Context) : OcrEngine {
             TextRecognition.getClient(ChineseTextRecognizerOptions.Builder().build()),
             TextRecognition.getClient(JapaneseTextRecognizerOptions.Builder().build()),
             TextRecognition.getClient(KoreanTextRecognizerOptions.Builder().build()),
-            TextRecognition.getClient(DevanagariTextRecognizerOptions.Builder().build())
+            TextRecognition.getClient(DevanagariTextRecognizerOptions.Builder().build()),
+            TextRecognition.getClient(ThaiTextRecognizerOptions.Builder().build())
         )
     }
 

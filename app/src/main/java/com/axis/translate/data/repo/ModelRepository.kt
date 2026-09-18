@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Offline model manager (SPEC #35–#38): list, download, SHA-256 verify,
- * install, remove, and manual import of GGUF model packages.
+ * install, remove, manual import, and export of GGUF model packages.
  */
 interface ModelRepository {
     /** Manifest parsed from assets, hot-swappable in tests. */
@@ -38,6 +38,18 @@ interface ModelRepository {
      * structure, size, SHA-256 against the manifest when the file is known.
      */
     suspend fun importModel(uri: Uri): Result<InstalledModelInfo>
+
+    /**
+     * Copy the currently installed GGUF file to a user-picked SAF destination
+     * (the result URI of an ACTION_CREATE_DOCUMENT picker). The file is copied
+     * verbatim; no manifest or checksum sidecar is written.
+     *
+     * Fails with [IllegalStateException] when no model is installed (or the
+     * installed file is missing) and with an IO error when the copy could not
+     * be completed. A partially written SAF destination cannot be deleted by
+     * this app, so short copies are reported as failures instead of retried.
+     */
+    suspend fun exportModel(uri: Uri): Result<Unit>
 
     suspend fun removeModel()
 

@@ -8,6 +8,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -42,27 +43,36 @@ class BatchQueue {
     private var runJob: Job? = null
 
     fun add(task: BatchTask) {
-        _items.value = _items.value + TaskState(task = task, index = _items.value.size)
+        // update{} keeps the read-modify-write atomic: add() runs on the main
+        // thread while updateItem() runs on the service runner dispatcher.
+        _items.update { current -> current + TaskState(task = task, index = current.size) }
     }
 
     fun remove(id: String) {
-        _items.value = _items.value.filterNot { it.task.id == id }
+        _items.update { current -> current.filterNot { it.task.id == id } }
     }
 
     fun clear() {
         cancelRequested.set(true)
+        // A cleared queue must not stay paused, or the next run would stall in
+        // the cooperative pause loop before its first task.
+        pausedState.value = false
         _items.value = emptyList()
     }
 
     fun retry(id: String) {
-        _items.value = _items.value.map {
-            if (it.task.id == id) it.copy(state = BatchState.PENDING, error = null, result = null) else it
+        _items.update { current ->
+            current.map {
+                if (it.task.id == id) it.copy(state = BatchState.PENDING, error = null, result = null) else it
+            }
         }
     }
 
     fun retryAllFailed() {
-        _items.value = _items.value.map {
-            if (it.state == BatchState.FAILED) it.copy(state = BatchState.PENDING, error = null) else it
+        _items.update { current ->
+            current.map {
+                if (it.state == BatchState.FAILED) it.copy(state = BatchState.PENDING, error = null) else it
+            }
         }
     }
 
@@ -76,6 +86,9 @@ class BatchQueue {
 
     fun cancel() {
         cancelRequested.set(true)
+        // Reset pause so a subsequent run never starts stuck in the pause loop
+        // (the Resume button is only visible while a run is active).
+        pausedState.value = false
         runJob?.cancel()
     }
 
@@ -124,7 +137,7 @@ class BatchQueue {
     }
 
     private fun updateItem(id: String, transform: (TaskState) -> TaskState) {
-        _items.value = _items.value.map { if (it.task.id == id) transform(it) else it }
+        _items.update { current -> current.map { if (it.task.id == id) transform(it) else it } }
     }
 
     companion object {

@@ -155,15 +155,50 @@ class LibraryDaoTest {
         assertEquals("kopi susu", afterUpdate.first { it.id == firstId }.sourceText)
         assertEquals("updated", afterUpdate.first { it.id == firstId }.note)
 
-        assertEquals(1, repository.search("milk coffee").size)
-        assertEquals(1, repository.search("kopi").size)
-        assertEquals(0, repository.search("cappuccino").size)
+        assertEquals(1, repository.search("milk coffee").first().size)
+        assertEquals(1, repository.search("kopi").first().size)
+        assertEquals(0, repository.search("cappuccino").first().size)
 
         repository.delete(firstId)
         assertEquals(1, repository.observe().first().size)
 
         repository.clear()
         assertTrue(repository.observe().first().isEmpty())
+    }
+
+    @Test
+    fun `favorites add dedups by source text and language pair`() = runTest {
+        val repository = FavoritesRepositoryImpl(database.favoriteDao())
+
+        val firstId = repository.add(favoriteItem(sourceText = "kopi", translatedText = "coffee"))
+        val secondId = repository.add(favoriteItem(sourceText = "kopi", translatedText = "coffee (updated)"))
+
+        assertEquals(firstId, secondId)
+        val items = repository.observe().first()
+        assertEquals(1, items.size)
+        assertEquals("coffee (updated)", items.first().translatedText)
+    }
+
+    @Test
+    fun `history star flags stay in sync with favorites removal`() = runTest {
+        val historyRepository = HistoryRepositoryImpl(historyDao)
+        val favoritesRepository = FavoritesRepositoryImpl(database.favoriteDao())
+
+        val historyId = historyDao.insert(historyEntity(sourceText = "kopi", translatedText = "coffee"))
+        historyRepository.setFavorite(historyId, true)
+        favoritesRepository.add(favoriteItem(sourceText = "kopi", translatedText = "coffee"))
+        assertNotNull(historyRepository.get(historyId))
+        assertTrue(historyRepository.get(historyId)!!.isFavorite)
+
+        // Un-star via the favorites side: history flags must follow.
+        favoritesRepository.deleteByContent("en", "id", "kopi")
+        assertTrue(!historyRepository.get(historyId)!!.isFavorite)
+
+        // Re-star and clear the whole favorites list: flags reset again.
+        historyRepository.setFavoriteByContent("en", "id", "kopi", true)
+        favoritesRepository.clear()
+        historyRepository.clearFavoriteFlags()
+        assertTrue(!historyRepository.get(historyId)!!.isFavorite)
     }
 
     @Test

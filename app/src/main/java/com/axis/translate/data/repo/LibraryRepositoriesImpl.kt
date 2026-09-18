@@ -45,6 +45,15 @@ class HistoryRepositoryImpl(private val dao: HistoryDao) : HistoryRepository {
 
     override suspend fun setFavorite(id: Long, favorite: Boolean) = dao.setFavorite(id, favorite)
 
+    override suspend fun setFavoriteByContent(
+        sourceCode: String,
+        targetCode: String,
+        sourceText: String,
+        favorite: Boolean
+    ) = dao.setFavoriteByContent(sourceCode, targetCode, sourceText, favorite)
+
+    override suspend fun clearFavoriteFlags() = dao.clearFavoriteFlags()
+
     override suspend fun delete(id: Long) = dao.deleteById(id)
 
     override suspend fun clear() = dao.deleteAll()
@@ -55,13 +64,27 @@ class FavoritesRepositoryImpl(private val dao: FavoriteDao) : FavoritesRepositor
 
     override fun observe(): Flow<List<FavoriteItem>> = dao.getAll().map { entities -> entities.map { it.toDomain() } }
 
-    override suspend fun search(query: String): List<FavoriteItem> = dao.search(query.escapeForLike()).map { it.toDomain() }
+    override suspend fun search(query: String): Flow<List<FavoriteItem>> = dao.search(query.escapeForLike()).map { entities -> entities.map { it.toDomain() } }
 
-    override suspend fun add(item: FavoriteItem): Long = dao.insert(FavoriteEntity.fromDomain(item))
+    override suspend fun add(item: FavoriteItem): Long {
+        // Dedup: starring the same text in the same language pair twice keeps a
+        // single row and just returns the existing id.
+        val existing = dao.findByContent(item.sourceCode, item.targetCode, item.sourceText)
+        if (existing != null) {
+            if (existing.translatedText != item.translatedText) {
+                dao.update(FavoriteEntity.fromDomain(item.copy(id = existing.id)))
+            }
+            return existing.id
+        }
+        return dao.insert(FavoriteEntity.fromDomain(item))
+    }
 
     override suspend fun update(item: FavoriteItem) = dao.update(FavoriteEntity.fromDomain(item))
 
     override suspend fun delete(id: Long) = dao.deleteById(id)
+
+    override suspend fun deleteByContent(sourceCode: String, targetCode: String, sourceText: String) =
+        dao.deleteByContent(sourceCode, targetCode, sourceText)
 
     override suspend fun clear() = dao.deleteAll()
 }

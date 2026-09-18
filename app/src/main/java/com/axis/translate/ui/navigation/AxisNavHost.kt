@@ -1,5 +1,9 @@
 package com.axis.translate.ui.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -20,13 +24,21 @@ import com.axis.translate.ui.settings.SettingsScreen
 /**
  * Root navigation graph. Bottom-bar destinations plus every secondary
  * destination in the app; all screens keep the fixed `(modifier)` signature.
+ * Destination changes use a subtle Material fade-through motion.
  */
 @Composable
 fun AxisNavHost(navController: NavHostController, modifier: Modifier = Modifier) {
     NavHost(
         navController = navController,
         startDestination = Routes.HOME,
-        modifier = modifier
+        modifier = modifier,
+        enterTransition = {
+            fadeIn(animationSpec = tween(220)) +
+                scaleIn(animationSpec = tween(220), initialScale = 0.96f)
+        },
+        exitTransition = { fadeOut(animationSpec = tween(90)) },
+        popEnterTransition = { fadeIn(animationSpec = tween(220)) },
+        popExitTransition = { fadeOut(animationSpec = tween(90)) }
     ) {
         composable(Routes.HOME) { HomeScreen(Modifier) }
         composable(Routes.CAMERA) { CameraScreen(Modifier) }

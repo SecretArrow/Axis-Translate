@@ -21,6 +21,7 @@ private val Context.axisDataStore by preferencesDataStore(name = "axis_settings"
 /** Storage key for every [AppSettings] field. */
 private object Keys {
     val THEME_MODE = stringPreferencesKey("theme_mode")
+    val DYNAMIC_COLOR = booleanPreferencesKey("dynamic_color")
     val SOURCE_LANGUAGE = stringPreferencesKey("source_language")
     val TARGET_LANGUAGE = stringPreferencesKey("target_language")
     val RECENT_PAIRS = stringSetPreferencesKey("recent_pairs")
@@ -78,6 +79,7 @@ private fun Preferences.toAppSettings(): AppSettings = AppSettings(
     themeMode = this[Keys.THEME_MODE]
         ?.let { stored -> ThemeMode.entries.firstOrNull { mode -> mode.name == stored } }
         ?: ThemeMode.SYSTEM,
+    dynamicColor = this[Keys.DYNAMIC_COLOR] ?: true,
     sourceLanguageCode = this[Keys.SOURCE_LANGUAGE] ?: Defaults.SOURCE_LANGUAGE,
     targetLanguageCode = this[Keys.TARGET_LANGUAGE] ?: Defaults.TARGET_LANGUAGE,
     recentPairs = this[Keys.RECENT_PAIRS].orEmpty()
@@ -106,6 +108,10 @@ class DataStoreSettingsRepository(private val context: Context) : SettingsReposi
 
     override suspend fun setThemeMode(mode: ThemeMode) {
         context.axisDataStore.edit { preferences -> preferences[Keys.THEME_MODE] = mode.name }
+    }
+
+    override suspend fun setDynamicColor(enabled: Boolean) {
+        context.axisDataStore.edit { preferences -> preferences[Keys.DYNAMIC_COLOR] = enabled }
     }
 
     override suspend fun setSourceLanguage(code: String) {

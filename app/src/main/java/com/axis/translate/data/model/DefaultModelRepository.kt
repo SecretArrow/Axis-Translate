@@ -168,6 +168,49 @@ class DefaultModelRepository(
         Unit
     }
 
+    /**
+     * Read-only copy of the installed GGUF to a SAF destination. Deliberately
+     * NOT guarded by [installMutex]: only the [InstalledModelInfo.path]
+     * snapshot is read, so this can never deadlock against a concurrent
+     * install/import/remove (a file deleted mid-copy simply surfaces as an
+     * IO failure) and a multi-gigabyte export never blocks model management.
+     */
+    override suspend fun exportModel(uri: Uri): Result<Unit> {
+        val info = _installed.value
+            ?: return Result.failure(IllegalStateException(EXPORT_NO_MODEL_MESSAGE))
+        return withContext(Dispatchers.IO) {
+            val source = File(info.path)
+            if (!source.isFile || source.length() <= 0L) {
+                return@withContext Result.failure(IllegalStateException(EXPORT_NO_MODEL_MESSAGE))
+            }
+            val output = try {
+                context.contentResolver.openOutputStream(uri)
+            } catch (security: SecurityException) {
+                return@withContext Result.failure(security)
+            }
+            if (output == null) {
+                return@withContext Result.failure(IllegalStateException(EXPORT_UNWRITABLE_MESSAGE))
+            }
+            try {
+                val expectedBytes = source.length()
+                val copiedBytes = output.use { stream ->
+                    source.inputStream().use { input -> input.copyTo(stream, COPY_BUFFER_BYTES) }
+                }
+                if (copiedBytes != expectedBytes) {
+                    // The SAF destination now holds a partial file, but it
+                    // cannot be deleted through the picker URI; report it.
+                    Result.failure(IOException(EXPORT_INCOMPLETE_MESSAGE))
+                } else {
+                    Result.success(Unit)
+                }
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (io: IOException) {
+                Result.failure(io)
+            }
+        }
+    }
+
     override suspend fun verifyInstalled(): Boolean {
         val info = _installed.value ?: return false
         return withContext(Dispatchers.IO) {
@@ -358,6 +401,9 @@ class DefaultModelRepository(
         const val DEFAULT_IMPORT_FILE_NAME = "imported.gguf"
         const val VERIFICATION_FAILED_MESSAGE = "Model verification failed"
         const val NOT_GGUF_MESSAGE = "Not a valid GGUF model file"
+        const val EXPORT_NO_MODEL_MESSAGE = "No model installed to export"
+        const val EXPORT_UNWRITABLE_MESSAGE = "Cannot write to the selected destination"
+        const val EXPORT_INCOMPLETE_MESSAGE = "Export finished early; the destination file is incomplete. Free up space and try again."
         const val DEFAULT_CONTEXT_LENGTH = 2048
         const val HASH_PREFIX_LENGTH = 8
         const val BYTES_PER_MB = 1024L * 1024L

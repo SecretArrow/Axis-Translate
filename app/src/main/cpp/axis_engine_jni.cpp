@@ -10,7 +10,24 @@
 // the JVM as an opaque jlong handle. The handle is owned exclusively by
 // LlamaBridge, which frees it via nativeDestroy. Generation is serialized by
 // AxisEngine::gen_mutex; nativeStop flips a std::atomic<bool> that the
-// generation loop checks between tokens.
+// generation loop checks between tokens. nativeDestroy acquires the same
+// gen_mutex (after flipping the stop flag) so a model is never freed while a
+// generation is running on another thread.
+//
+// Prompt pipeline (v2, fixes the "generation failed / garbage output" bug):
+//   1. The Kotlin layer supplies a plain-text instruction prompt.
+//   2. The prompt is wrapped as a single user turn with the model's own chat
+//      template (llama_model_chat_template + llama_chat_apply_template). The
+//      simple (non-jinja) renderer heuristic-matches the template family, so
+//      chatml-family models get proper turn markers.
+//   3. Hybrid-reasoning models (Qwen3 / Qwen3.5) that own a dedicated
+//      think-block token are detected by tokenizing the think-close marker:
+//      if it resolves to a single special token, an EMPTY thinking block is
+//      pre-filled so the model answers directly instead of looping forever
+//      inside its reasoning trace (verified against Qwen3.5-0.8B Q4_K_M).
+//   4. The FULL prompt batch is decoded BEFORE any sampling (the old code fed
+//      prompt tokens one-by-one and sampled after each, producing nonsense).
+//   5. Any think-block leakage into the generated text is stripped.
 //
 // NOTE: signature discipline matters here. llama.cpp's public API changes
 // between releases; only the v0.4.1 signatures listed below are used. There
@@ -22,6 +39,7 @@
 
 #include <algorithm>
 #include <atomic>
+#include <cstring>
 #include <mutex>
 #include <string>
 #include <vector>
@@ -33,6 +51,15 @@
 #define AXIS_LOGE(...) __android_log_print(ANDROID_LOG_ERROR, AXIS_LOG_TAG, __VA_ARGS__)
 
 namespace {
+
+// llama.cpp v0.4.1 limits a single llama_batch to this many tokens.
+constexpr int32_t kMaxBatchTokens = 1024;
+
+// Think-block markers used by Qwen3 / Qwen3.5 hybrid-reasoning models.
+// Assembled byte-by-byte so the literals never appear as raw markup in the
+// source tree (some toolchains/terminals mangle tag-like strings).
+const char kThinkOpenBytes[]  = {'<', 't', 'h', 'i', 'n', 'k', '>', '\0'};
+const char kThinkCloseBytes[] = {'<', '/', 't', 'h', 'i', 'n', 'k', '>', '\0'};
 
 struct AxisEngine {
     llama_model* model = nullptr;
@@ -49,6 +76,66 @@ std::once_flag backend_init_flag;
 
 inline bool axis_is_space(char c) {
     return c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f' || c == '\v';
+}
+
+/**
+ * Wraps the plain instruction prompt as a chat-formatted prompt using the
+ * model's own template, then appends an empty think-block when the model is
+ * a hybrid-reasoning model. Returns the ready-to-tokenize prompt string.
+ * Falls back to the raw prompt whenever template rendering is unavailable.
+ */
+std::string build_chat_prompt(const llama_model* model, const llama_vocab* vocab, const std::string& raw_prompt) {
+    std::string prompt = raw_prompt;
+
+    // Apply the model's chat template (heuristic renderer). tmpl == nullptr
+    // would default to "chatml"; prefer the model's embedded template string
+    // so non-chatml models (gemma, llama3, ...) render correctly too.
+    const char* tmpl = llama_model_chat_template(model, nullptr);
+    llama_chat_message message;
+    message.role = "user";
+    message.content = prompt.c_str();
+
+    const int32_t need = llama_chat_apply_template(tmpl, &message, 1, true, nullptr, 0);
+    if (need > 0) {
+        std::vector<char> buf(static_cast<size_t>(need) + 1, '\0');
+        const int32_t written = llama_chat_apply_template(
+            tmpl, &message, 1, true, buf.data(), static_cast<int32_t>(buf.size()));
+        if (written > 0 && written < static_cast<int32_t>(buf.size())) {
+            prompt.assign(buf.data(), static_cast<size_t>(written));
+        }
+    }
+
+    // Hybrid-reasoning probe: tokenize the think-close marker; a dedicated
+    // single special token means the model is Qwen3/Qwen3.5-style. Pre-filling
+    // an EMPTY think block makes it emit the answer directly instead of
+    // entering a (for tiny models, often degenerate) reasoning loop.
+    llama_token probe[4];
+    const int32_t probe_n = llama_tokenize(
+        vocab, kThinkCloseBytes, static_cast<int32_t>(strlen(kThinkCloseBytes)),
+        probe, 4, /* add_special = */ false, /* parse_special = */ true);
+    if (probe_n == 1) {
+        prompt += kThinkOpenBytes;
+        prompt += "\n\n";
+        prompt += kThinkCloseBytes;
+        prompt += "\n\n";
+    }
+
+    return prompt;
+}
+
+/** Removes any think-block that leaked into the generated text. */
+void strip_think_blocks(std::string& out) {
+    const std::string open(kThinkOpenBytes);
+    const std::string close(kThinkCloseBytes);
+    size_t pos = 0;
+    while ((pos = out.find(open, pos)) != std::string::npos) {
+        const size_t end = out.find(close, pos + open.size());
+        if (end == std::string::npos) {
+            out.resize(pos);
+            break;
+        }
+        out.erase(pos, end + close.size() - pos);
+    }
 }
 
 } // namespace
@@ -89,8 +176,8 @@ Java_com_axis_translate_inference_LlamaBridge_nativeCreate(
 
     llama_context_params cparams = llama_context_default_params();
     cparams.n_ctx            = (uint32_t) ctx_len;
-    cparams.n_batch          = 1024;
-    cparams.n_ubatch         = 1024;
+    cparams.n_batch          = kMaxBatchTokens;
+    cparams.n_ubatch         = kMaxBatchTokens;
     cparams.n_threads        = threads;
     cparams.n_threads_batch  = threads;
 
@@ -135,38 +222,43 @@ Java_com_axis_translate_inference_LlamaBridge_nativeComplete(
 
     const llama_vocab* vocab = llama_model_get_vocab(eng->model);
 
-    // First pass: count required tokens.
-    const int32_t n_prompt =
-        llama_tokenize(vocab, prompt, prompt_len, nullptr, 0, true, true);
-    if (n_prompt < 0) {
-        AXIS_LOGE("tokenization failed (code %d)", n_prompt);
-        env->ReleaseStringUTFChars(jPrompt, prompt);
-        return nullptr;
-    }
-    if (n_prompt > eng->n_ctx - 16) {
-        AXIS_LOGE("prompt too long: %d tokens (n_ctx=%d)", n_prompt, eng->n_ctx);
-        env->ReleaseStringUTFChars(jPrompt, prompt);
-        return nullptr;
-    }
-
-    // Second pass: fill the token vector (with special tokens, since these
-    // are real model instructions/turn markers for translation prompts).
-    std::vector<llama_token> tokens;
-    tokens.resize(n_prompt > 0 ? (size_t) n_prompt : 1);
-    llama_tokenize(vocab, prompt, prompt_len, tokens.data(),
-                   (int32_t) tokens.size(), true, true);
+    // ---- 1. Wrap the instruction prompt with the model's chat template. ----
+    const std::string chat_prompt = build_chat_prompt(eng->model, vocab, std::string(prompt, (size_t) prompt_len));
 
     env->ReleaseStringUTFChars(jPrompt, prompt);
 
-    // Clamp generation budget, leaving a few tokens of context headroom.
+    // ---- 2. Tokenize the final prompt. ----
+    // First pass: count required tokens. NOTE: with a null/too-small buffer
+    // llama_tokenize returns the NEGATIVE of the required token count — this
+    // is the documented size-probe contract in llama.cpp, not an error. The
+    // original implementation treated any negative return as a hard failure,
+    // which made EVERY generation fail with "Generation failed".
+    int32_t n_prompt =
+        llama_tokenize(vocab, chat_prompt.data(), (int32_t) chat_prompt.size(), nullptr, 0, true, true);
+    if (n_prompt < 0) {
+        n_prompt = -n_prompt; // size probe: negative = required count
+    }
+    if (n_prompt > eng->n_ctx - 64) {
+        AXIS_LOGE("prompt too long: %d tokens (n_ctx=%d)", n_prompt, eng->n_ctx);
+        return nullptr;
+    }
+
+    // Second pass: fill the token vector (with special tokens: the chat
+    // template markers are real turn/control tokens for the model).
+    std::vector<llama_token> tokens;
+    tokens.resize(n_prompt > 0 ? (size_t) n_prompt : 1);
+    llama_tokenize(vocab, chat_prompt.data(), (int32_t) chat_prompt.size(), tokens.data(),
+                   (int32_t) tokens.size(), true, true);
+
+    // Clamp generation budget, leaving context headroom.
     int max_hi = eng->n_ctx - n_prompt - 4;
     if (max_hi < 16) {
         max_hi = 16; // keep std::clamp bounds well-ordered
     }
     const int max_tokens = std::clamp<int>(jMaxTokens, 16, max_hi);
 
-    // llama_batch_get_one() below keeps a raw pointer into the vector, so it
-    // must not reallocate during the generation loop.
+    // The generation loop feeds one token per llama_batch_get_one() below,
+    // and those calls keep raw pointers into stable storage.
     tokens.reserve((size_t) n_prompt + (size_t) max_tokens + 8);
 
     std::string stop_seq;
@@ -191,15 +283,30 @@ Java_com_axis_translate_inference_LlamaBridge_nativeComplete(
     std::string out;
     out.reserve(1024);
 
-    for (int i = 0; i < max_tokens; ++i) {
+    // ---- 3. Decode the WHOLE prompt batch first (in n_batch chunks). ----
+    // The old implementation decoded prompt tokens one by one and sampled
+    // after each, which produced garbage; this is the correct llama.cpp
+    // pattern and is also dramatically faster.
+    bool decode_ok = true;
+    for (int32_t offset = 0; offset < n_prompt; ) {
+        if (eng->stop.load()) {
+            decode_ok = false; // cooperative cancel during prompt processing
+            break;
+        }
+        const int32_t take = std::min(kMaxBatchTokens, n_prompt - offset);
+        llama_batch prompt_batch = llama_batch_get_one(tokens.data() + offset, take);
+        if (llama_decode(eng->ctx, prompt_batch) != 0) {
+            AXIS_LOGE("llama_decode failed for prompt at offset %d", offset);
+            decode_ok = false;
+            break;
+        }
+        offset += take;
+    }
+
+    // ---- 4. Generate: sample one token, then feed exactly that token back. ----
+    for (int i = 0; decode_ok && i < max_tokens; ++i) {
         if (eng->stop.load()) {
             break; // cooperative cancellation from nativeStop()
-        }
-
-        llama_batch batch = llama_batch_get_one(&tokens[i], 1);
-        if (llama_decode(eng->ctx, batch) != 0) {
-            AXIS_LOGE("llama_decode failed at position %d", i);
-            break;
         }
 
         const llama_token tok = llama_sampler_sample(chain, eng->ctx, -1);
@@ -220,10 +327,20 @@ Java_com_axis_translate_inference_LlamaBridge_nativeComplete(
             break;
         }
 
-        tokens.push_back(tok);
+        // Feed the sampled token back for the next decode. `cur` is a stable
+        // local; llama_batch keeps a raw pointer to it.
+        llama_token cur = tok;
+        llama_batch batch = llama_batch_get_one(&cur, 1);
+        if (llama_decode(eng->ctx, batch) != 0) {
+            AXIS_LOGE("llama_decode failed at generation step %d", i);
+            break;
+        }
     }
 
     llama_sampler_free(chain);
+
+    // ---- 5. Post-process: think-block leakage, whitespace, quote wrapping. ----
+    strip_think_blocks(out);
 
     // Trim whitespace from both ends ...
     size_t b = 0;
@@ -273,6 +390,11 @@ Java_com_axis_translate_inference_LlamaBridge_nativeDestroy(
     if (eng == nullptr) {
         return;
     }
+    // Request cooperative stop, then wait for any in-flight generation to
+    // finish before freeing the model/context (prevents use-after-free when
+    // unload() races a running complete()).
+    eng->stop = true;
+    std::lock_guard<std::mutex> gen_lock(eng->gen_mutex);
     if (eng->ctx != nullptr) {
         llama_free(eng->ctx);
         eng->ctx = nullptr;

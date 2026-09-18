@@ -155,7 +155,7 @@ fun FavoritesScreen(modifier: Modifier = Modifier) {
                             },
                             onCopy = { AndroidUtils.copyToClipboard(context, item.translatedText) },
                             onShare = { AndroidUtils.shareText(context, item.translatedText) },
-                            onDelete = { vm.delete(item.id) }
+                            onDelete = { vm.delete(item) }
                         )
                     }
                 }

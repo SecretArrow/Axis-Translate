@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.axis.translate.di.AppContainer
+import com.axis.translate.domain.model.FavoriteItem
 import com.axis.translate.domain.model.HistoryItem
 import com.axis.translate.domain.model.InputType
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -90,7 +91,25 @@ class HistoryViewModel(private val container: AppContainer) : ViewModel() {
 
     fun toggleFavorite(item: HistoryItem) {
         viewModelScope.launch {
-            container.historyRepository.setFavorite(item.id, !item.isFavorite)
+            val favorite = !item.isFavorite
+            container.historyRepository.setFavorite(item.id, favorite)
+            // Mirror the change into the favorites list so both screens agree.
+            if (favorite) {
+                container.favoritesRepository.add(
+                    FavoriteItem(
+                        sourceCode = item.sourceCode,
+                        targetCode = item.targetCode,
+                        sourceText = item.sourceText,
+                        translatedText = item.translatedText
+                    )
+                )
+            } else {
+                container.favoritesRepository.deleteByContent(
+                    item.sourceCode,
+                    item.targetCode,
+                    item.sourceText
+                )
+            }
         }
     }
 }

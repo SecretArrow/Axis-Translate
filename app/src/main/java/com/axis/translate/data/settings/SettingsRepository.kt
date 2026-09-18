@@ -1,10 +1,12 @@
 package com.axis.translate.data.settings
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 /** App settings contract, persisted with DataStore (SPEC #49, #27, #30). */
 data class AppSettings(
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
+    val dynamicColor: Boolean = true,
     val sourceLanguageCode: String = "auto",
     val targetLanguageCode: String = "en",
     val recentPairs: List<Pair<String, String>> = emptyList(),
@@ -24,8 +26,14 @@ enum class ThemeMode { SYSTEM, LIGHT, DARK }
 
 interface SettingsRepository {
     val settings: Flow<AppSettings>
+
+    /** Material You dynamic color preference (only effective on Android 12+). */
+    val dynamicColor: Flow<Boolean>
+        get() = settings.map { it.dynamicColor }
+
     suspend fun current(): AppSettings
     suspend fun setThemeMode(mode: ThemeMode)
+    suspend fun setDynamicColor(enabled: Boolean)
     suspend fun setSourceLanguage(code: String)
     suspend fun setTargetLanguage(code: String)
     suspend fun pushRecentPair(source: String, target: String)

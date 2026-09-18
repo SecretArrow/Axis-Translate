@@ -59,6 +59,9 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
 
     private var translateJob: Job? = null
 
+    /** Row id of the history entry created by the last successful translation. */
+    private var lastHistoryId: Long? = null
+
     init {
         // Persisted settings + installed model drive the language pair and banner.
         viewModelScope.launch {
@@ -247,7 +250,7 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
                         detectedLanguageCode = result.detectedLanguage?.code,
                         durationMs = result.durationMs
                     )
-                )
+                ).also { id -> lastHistoryId = id }
                 container.settingsRepository.pushRecentPair(
                     current.source.code,
                     current.target.code
@@ -299,6 +302,7 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
     fun saveFavorite() {
         val state = _uiState.value
         val result = state.result ?: return
+        val historyId = lastHistoryId
         viewModelScope.launch {
             container.favoritesRepository.add(
                 FavoriteItem(
@@ -308,6 +312,18 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
                     translatedText = result.translatedText
                 )
             )
+            // Keep the history star in sync with the favorites list so the same
+            // translation shows as starred in both places.
+            if (historyId != null && historyId > 0L) {
+                container.historyRepository.setFavorite(historyId, true)
+            } else {
+                container.historyRepository.setFavoriteByContent(
+                    state.source.code,
+                    state.target.code,
+                    state.input.trim(),
+                    true
+                )
+            }
         }
     }
 

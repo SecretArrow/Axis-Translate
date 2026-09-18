@@ -23,6 +23,7 @@ data class ModelManagerUiState(
     val installed: InstalledModelInfo? = null,
     val progress: ModelProgress? = null,
     val busy: Boolean = false,
+    val exporting: Boolean = false,
     val error: String? = null,
     val verifyResult: Boolean? = null,
     val reloading: Boolean = false
@@ -30,8 +31,8 @@ data class ModelManagerUiState(
 
 /**
  * Model manager state holder (SPEC #35–#38): manifest listing, download /
- * install progress, SHA-256 verification, local import, removal, and engine
- * reload after a model change.
+ * install progress, SHA-256 verification, local import, export, removal, and
+ * engine reload after a model change.
  */
 class ModelManagerViewModel(private val container: AppContainer) : ViewModel() {
 
@@ -107,6 +108,21 @@ class ModelManagerViewModel(private val container: AppContainer) : ViewModel() {
                     _ui.update { it.copy(error = e.message ?: "Import failed") }
                 }
             _ui.update { it.copy(busy = false) }
+        }
+    }
+
+    /** Default file name for the export picker; null when no model is installed. */
+    fun exportFileName(): String? = _ui.value.installed?.entry?.file
+
+    /** Copy the installed model package to a destination picked via SAF (content URI). */
+    fun exportModel(uri: Uri) {
+        viewModelScope.launch {
+            _ui.update { it.copy(busy = true, exporting = true, error = null) }
+            container.modelRepository.exportModel(uri)
+                .onFailure { e ->
+                    _ui.update { it.copy(error = e.message ?: "Export failed") }
+                }
+            _ui.update { it.copy(busy = false, exporting = false) }
         }
     }
 

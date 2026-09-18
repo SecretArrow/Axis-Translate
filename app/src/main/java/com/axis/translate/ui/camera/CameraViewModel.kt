@@ -98,8 +98,16 @@ class CameraViewModel(
     fun onImageCaptured(file: File) {
         viewModelScope.launch {
             val bitmap = withContext(Dispatchers.IO) {
-                val decoded = ImageUtils.decodeDownsampled(file) ?: return@withContext null
-                ImageUtils.rotateBitmap(decoded, ImageUtils.readExifRotation(file))
+                val decoded = ImageUtils.decodeDownsampled(file)
+                val rotated = if (decoded != null) {
+                    ImageUtils.rotateBitmap(decoded, ImageUtils.readExifRotation(file))
+                } else {
+                    null
+                }
+                // The capture file only staged data for the decode; drop it so
+                // full-resolution stills never accumulate in cacheDir.
+                file.delete()
+                rotated
             }
             if (bitmap == null) {
                 _ui.update { it.copy(error = "Could not read image") }

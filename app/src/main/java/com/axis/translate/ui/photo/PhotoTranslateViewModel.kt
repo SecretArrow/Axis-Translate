@@ -48,6 +48,7 @@ class PhotoTranslateViewModel(private val container: AppContainer) : ViewModel()
     val uiState: StateFlow<PhotoUiState> = _uiState.asStateFlow()
 
     private var translateJob: Job? = null
+    private var recognizeJob: Job? = null
 
     init {
         // Persisted language pair drives the translation direction.
@@ -66,31 +67,38 @@ class PhotoTranslateViewModel(private val container: AppContainer) : ViewModel()
     /** Runs offline OCR over a newly shared/captured image. */
     fun onImage(bitmap: Bitmap) {
         _uiState.update { it.copy(translating = true, error = null) }
-        viewModelScope.launch {
-            container.ocrEngine.recognize(bitmap, 0)
-                .onSuccess { ocr ->
-                    _uiState.update {
-                        it.copy(
-                            bitmap = bitmap,
-                            ocr = if (ocr.isEmpty) null else ocr,
-                            selectedRegion = null,
-                            translatedRegions = emptyList(),
-                            translatedFull = null,
-                            comparing = CompareMode.ORIGINAL,
-                            translating = false,
-                            error = if (ocr.isEmpty) "No text detected in this image." else null
-                        )
+        recognizeJob = viewModelScope.launch {
+            try {
+                container.ocrEngine.recognize(bitmap, 0)
+                    .onSuccess { ocr ->
+                        _uiState.update {
+                            it.copy(
+                                bitmap = bitmap,
+                                ocr = if (ocr.isEmpty) null else ocr,
+                                selectedRegion = null,
+                                translatedRegions = emptyList(),
+                                translatedFull = null,
+                                comparing = CompareMode.ORIGINAL,
+                                translating = false,
+                                error = if (ocr.isEmpty) "No text detected in this image." else null
+                            )
+                        }
                     }
-                }
-                .onFailure {
-                    _uiState.update {
-                        it.copy(
-                            bitmap = bitmap,
-                            translating = false,
-                            error = "Offline OCR is not available."
-                        )
+                    .onFailure {
+                        _uiState.update {
+                            it.copy(
+                                bitmap = bitmap,
+                                translating = false,
+                                error = "Offline OCR is not available."
+                            )
+                        }
                     }
-                }
+            } catch (cancellation: CancellationException) {
+                // OCR was cancelled through cancelTranslation(): release the
+                // progress flag instead of leaving the loading overlay up.
+                _uiState.update { it.copy(translating = false) }
+                throw cancellation
+            }
         }
     }
 
@@ -207,6 +215,7 @@ class PhotoTranslateViewModel(private val container: AppContainer) : ViewModel()
     /** Clears the current image and every derived result. */
     fun reset() {
         translateJob?.cancel()
+        recognizeJob?.cancel()
         _uiState.update {
             it.copy(
                 bitmap = null,
@@ -228,6 +237,9 @@ class PhotoTranslateViewModel(private val container: AppContainer) : ViewModel()
     fun cancelTranslation() {
         container.translationManager.stop()
         translateJob?.cancel()
+        // Also stop an in-flight OCR pass: cancelling it must reset the
+        // translating flag, or the loading overlay would stay up forever.
+        recognizeJob?.cancel()
         _uiState.update { it.copy(translating = false) }
     }
 

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import com.axis.translate.data.settings.DataStoreSettingsRepository
 import com.axis.translate.data.settings.ThemeMode
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -39,6 +40,7 @@ class DataStoreSettingsRepositoryTest {
         // --- defaults surfaced by current() ---
         val defaults = repository.current()
         assertEquals(ThemeMode.SYSTEM, defaults.themeMode)
+        assertTrue(defaults.dynamicColor)
         assertEquals("auto", defaults.sourceLanguageCode)
         assertEquals("en", defaults.targetLanguageCode)
         assertTrue(defaults.recentPairs.isEmpty())
@@ -57,6 +59,13 @@ class DataStoreSettingsRepositoryTest {
         repository.setThemeMode(ThemeMode.DARK)
         assertEquals(ThemeMode.DARK, repository.current().themeMode)
         assertEquals(ThemeMode.DARK, DataStoreSettingsRepository(context).current().themeMode)
+
+        // --- dynamic color persists, also through the dedicated flow ---
+        repository.setDynamicColor(false)
+        assertFalse(repository.current().dynamicColor)
+        assertFalse(DataStoreSettingsRepository(context).dynamicColor.first())
+        repository.setDynamicColor(true)
+        assertTrue(repository.current().dynamicColor)
 
         // --- language selection persists ---
         repository.setSourceLanguage("id")

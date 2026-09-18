@@ -59,6 +59,10 @@ class SettingsViewModel(private val container: AppContainer) : ViewModel() {
         viewModelScope.launch { container.settingsRepository.setThemeMode(mode) }
     }
 
+    fun setDynamicColor(enabled: Boolean) {
+        viewModelScope.launch { container.settingsRepository.setDynamicColor(enabled) }
+    }
+
     fun setStyle(style: String) {
         viewModelScope.launch { container.settingsRepository.setTranslationStyle(style) }
     }
@@ -100,6 +104,10 @@ class SettingsViewModel(private val container: AppContainer) : ViewModel() {
     }
 
     fun clearFavorites() {
-        viewModelScope.launch { container.favoritesRepository.clear() }
+        viewModelScope.launch {
+            container.favoritesRepository.clear()
+            // Keep the history star flags consistent with the emptied list.
+            container.historyRepository.clearFavoriteFlags()
+        }
     }
 }
