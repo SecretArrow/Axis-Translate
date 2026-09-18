@@ -23,7 +23,7 @@ class TranslationManagerTest {
 
     private fun newManager(
         modelPath: () -> String? = { "/models/x.gguf" },
-        engineFactory: () -> TranslationEngine = { FakeEngine { "[fake]" } }
+        engineFactory: () -> TranslationEngine = { FakeEngine(responder = { "[fake]" }) }
     ): TranslationManager = TranslationManager(
         engineFactory = engineFactory,
         modelPathProvider = modelPath,
@@ -81,10 +81,12 @@ class TranslationManagerTest {
         var calls = 0
         val manager = newManager(
             engineFactory = {
-                FakeEngine {
-                    calls += 1
-                    "[fake $calls]"
-                }
+                FakeEngine(
+                    responder = {
+                        calls += 1
+                        "[fake $calls]"
+                    },
+                )
             }
         )
 
