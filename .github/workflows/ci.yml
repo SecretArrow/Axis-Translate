@@ -51,7 +51,7 @@ jobs:
           java-version: "17"
 
       - name: Set up Gradle (with caching)
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
       # ktlint auto-fix — push events to main only.
       #   1. run ktlintFormat (failures tolerated, format is best-effort)
