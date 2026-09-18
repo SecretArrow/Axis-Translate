@@ -1,5 +1,6 @@
 package com.axis.translate.domain.voice
 
+import android.content.Context
 import android.content.Intent
 
 /**
@@ -8,7 +9,7 @@ import android.content.Intent
  */
 interface SpeechRecognitionHelper {
     /** True when the device exposes a speech recognizer with offline support. */
-    fun isOfflineAvailable(): Boolean
+    fun isOfflineAvailable(context: Context): Boolean
 
     /** Intent launched via StartActivityForResult; results read from EXTRA_RESULTS. */
     fun createRecognizeIntent(languageHint: String?): Intent
