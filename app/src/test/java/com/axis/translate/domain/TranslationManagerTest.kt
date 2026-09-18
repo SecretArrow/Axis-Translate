@@ -85,7 +85,7 @@ class TranslationManagerTest {
                     responder = {
                         calls += 1
                         "[fake $calls]"
-                    },
+                    }
                 )
             }
         )
