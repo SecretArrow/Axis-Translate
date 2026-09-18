@@ -140,7 +140,7 @@ else()
 endif()
 
 if(MSVC)
-    target_compile_options(axis-translate PRIVATE /W4 /source-charset:utf-8)
+    target_compile_options(axis-translate PRIVATE /W4 /utf-8)
 endif()
 
 # ---------------------------------------------------------------------------
@@ -165,6 +165,9 @@ add_executable(axis_tests
 target_include_directories(axis_tests PRIVATE src)
 if(WIN32)
     target_link_libraries(axis_tests PRIVATE shell32 user32)
+    if(MSVC)
+        target_compile_options(axis_tests PRIVATE /utf-8)
+    endif()
 else()
     target_compile_options(axis_tests PRIVATE -Wall -Wextra)
     # platform_posix needs pthreads
