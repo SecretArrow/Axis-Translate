@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /** How the image viewer presents original vs translated content. */
-enum CompareMode { ORIGINAL, TRANSLATED, SPLIT }
+enum class CompareMode { ORIGINAL, TRANSLATED, SPLIT }
 
 /** Immutable UI state for the photo translation screen. */
 data class PhotoUiState(
