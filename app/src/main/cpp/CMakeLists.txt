@@ -36,6 +36,13 @@ set(LLAMA_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
 set(LLAMA_BUILD_COMMON OFF CACHE BOOL "" FORCE)
 set(LLAMA_CURL OFF CACHE BOOL "" FORCE)
 
+# llamafile sgemm kernels rely on FP16 NEON intrinsics that do not exist on
+# 32-bit ARM (vld1q_f16 etc.), and are tuned for 64-bit targets. Disable the
+# kernel for 32-bit ABIs; arm64-v8a and x86_64 keep it for GEMM performance.
+if (ANDROID_ABI STREQUAL "armeabi-v7a" OR ANDROID_ABI STREQUAL "x86")
+    set(GGML_LLAMAFILE OFF CACHE BOOL "" FORCE)
+endif()
+
 FetchContent_Declare(
     llama
     GIT_REPOSITORY https://github.com/ggml-org/llama.cpp
