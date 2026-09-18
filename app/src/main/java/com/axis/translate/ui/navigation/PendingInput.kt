@@ -16,7 +16,7 @@ object PendingInput {
     /** Plain text shared into the app (`text/plain`). */
     val sharedText = MutableStateFlow<String?>(null)
 
-    /** Image shared into the app (`image/*`), routed to the photo pipeline. */
+    /** Image shared into the app (any image MIME), routed to the photo pipeline. */
     val sharedImageUri = MutableStateFlow<Uri?>(null)
 
     /** Document shared into the app (html / markdown / octet-stream). */
