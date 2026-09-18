@@ -46,7 +46,7 @@ val LightColorScheme = lightColorScheme(
     onErrorContainer = Color(0xFF410002),
     outline = Color(0xFF77767F),
     outlineVariant = Color(0xFFC8C5D0),
-    scrim = Color(0xFF000000),
+    scrim = Color(0xFF000000)
 )
 
 /** Dark color scheme: soft periwinkle primary on deep charcoal surfaces. */
@@ -79,5 +79,5 @@ val DarkColorScheme = darkColorScheme(
     onErrorContainer = Color(0xFFFFDAD6),
     outline = Color(0xFF91909A),
     outlineVariant = Color(0xFF47464F),
-    scrim = Color(0xFF000000),
+    scrim = Color(0xFF000000)
 )

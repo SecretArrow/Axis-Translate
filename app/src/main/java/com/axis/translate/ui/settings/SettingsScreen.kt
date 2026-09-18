@@ -94,7 +94,7 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // ------------------------------------------------------------------
         // Appearance
@@ -104,13 +104,13 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
             val themes = listOf(
                 ThemeMode.SYSTEM to "System",
                 ThemeMode.LIGHT to "Light",
-                ThemeMode.DARK to "Dark",
+                ThemeMode.DARK to "Dark"
             )
             themes.forEachIndexed { index, (mode, label) ->
                 SegmentedButton(
                     selected = settings.themeMode == mode,
                     onClick = { vm.setTheme(mode) },
-                    shape = SegmentedButtonDefaults.itemShape(index = index, count = themes.size),
+                    shape = SegmentedButtonDefaults.itemShape(index = index, count = themes.size)
                 ) {
                     Text(label)
                 }
@@ -123,7 +123,7 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
         SectionHeader("Translation")
         ExposedDropdownMenuBox(
             expanded = styleExpanded,
-            onExpandedChange = { styleExpanded = it },
+            onExpandedChange = { styleExpanded = it }
         ) {
             val currentStyleLabel = TranslationStyle.entries
                 .firstOrNull { it.name == settings.translationStyle }?.label
@@ -138,11 +138,11 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
                 },
                 modifier = Modifier
                     .menuAnchor(MenuAnchorType.PrimaryNotEditable)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
             )
             ExposedDropdownMenu(
                 expanded = styleExpanded,
-                onDismissRequest = { styleExpanded = false },
+                onDismissRequest = { styleExpanded = false }
             ) {
                 TranslationStyle.entries.forEach { style ->
                     DropdownMenuItem(
@@ -150,37 +150,37 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
                         onClick = {
                             vm.setStyle(style.name)
                             styleExpanded = false
-                        },
+                        }
                     )
                 }
             }
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "Auto-detect language",
                 style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f)
             )
             Switch(
                 checked = settings.autoDetectLanguage,
-                onCheckedChange = vm::setAutoDetect,
+                onCheckedChange = vm::setAutoDetect
             )
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "Glossary",
                 style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f)
             )
             Switch(
                 checked = settings.glossaryEnabled,
-                onCheckedChange = vm::setGlossary,
+                onCheckedChange = vm::setGlossary
             )
         }
         TextButton(onClick = { AppNavigator.navigate(Routes.GLOSSARY) }) {
@@ -194,7 +194,7 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
         Column {
             Text(
                 text = "Threads: ${threads.toInt()}",
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyLarge
             )
             Slider(
                 value = threads,
@@ -202,12 +202,12 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
                 onValueChangeFinished = { vm.setThreads(threads.toInt()) },
                 valueRange = 1f..8f,
                 // 6 notches between 1 and 8 → snaps to whole thread counts.
-                steps = 6,
+                steps = 6
             )
         }
         ExposedDropdownMenuBox(
             expanded = contextExpanded,
-            onExpandedChange = { contextExpanded = it },
+            onExpandedChange = { contextExpanded = it }
         ) {
             OutlinedTextField(
                 value = settings.contextLength.toString(),
@@ -219,11 +219,11 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
                 },
                 modifier = Modifier
                     .menuAnchor(MenuAnchorType.PrimaryNotEditable)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
             )
             ExposedDropdownMenu(
                 expanded = contextExpanded,
-                onDismissRequest = { contextExpanded = false },
+                onDismissRequest = { contextExpanded = false }
             ) {
                 CONTEXT_LENGTH_OPTIONS.forEach { length ->
                     DropdownMenuItem(
@@ -231,7 +231,7 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
                         onClick = {
                             vm.setContextLength(length)
                             contextExpanded = false
-                        },
+                        }
                     )
                 }
             }
@@ -249,16 +249,16 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
         SectionHeader("Camera")
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "Live camera translation",
                 style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f)
             )
             Switch(
                 checked = settings.liveCameraTranslation,
-                onCheckedChange = vm::setLiveCamera,
+                onCheckedChange = vm::setLiveCamera
             )
         }
 
@@ -268,16 +268,16 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
         SectionHeader("Data")
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "Save translated photos",
                 style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f)
             )
             Switch(
                 checked = settings.saveTranslatedPhotos,
-                onCheckedChange = vm::setSavePhotos,
+                onCheckedChange = vm::setSavePhotos
             )
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -295,12 +295,12 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
         SectionHeader("Floating")
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "Floating translation",
                 style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f)
             )
             Switch(
                 checked = settings.floatingTranslationEnabled,
@@ -310,8 +310,8 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
                         context.startActivity(
                             Intent(
                                 Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                                Uri.parse("package:" + context.packageName),
-                            ),
+                                Uri.parse("package:" + context.packageName)
+                            )
                         )
                     }
                     vm.setFloating(enabled)
@@ -320,7 +320,7 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
                     } else if (!enabled) {
                         FloatingTranslateService.stop(context)
                     }
-                },
+                }
             )
         }
 
@@ -331,13 +331,13 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = MaterialTheme.shapes.medium,
-            tonalElevation = 2.dp,
+            tonalElevation = 2.dp
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
                     text = "All translation, OCR and speech run on this device. " +
                         "Network is used only to download AI models.",
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(Modifier.height(12.dp))
                 OfflineBadge()
@@ -350,16 +350,16 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
         SectionHeader("Developer")
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "Developer mode",
                 style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f)
             )
             Switch(
                 checked = settings.developerMode,
-                onCheckedChange = vm::setDeveloper,
+                onCheckedChange = vm::setDeveloper
             )
         }
         if (settings.developerMode) {
@@ -378,7 +378,7 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
         SectionHeader("About")
         Text(
             text = "Axis Translate $versionName",
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodyMedium
         )
     }
 
@@ -392,7 +392,7 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
                 vm.clearHistory()
                 showClearHistory = false
             },
-            onDismiss = { showClearHistory = false },
+            onDismiss = { showClearHistory = false }
         )
     }
     if (showClearFavorites) {
@@ -404,7 +404,7 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
                 vm.clearFavorites()
                 showClearFavorites = false
             },
-            onDismiss = { showClearFavorites = false },
+            onDismiss = { showClearFavorites = false }
         )
     }
 }

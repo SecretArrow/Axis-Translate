@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 /** Immutable UI state for the Settings screen. */
 data class SettingsUiState(
     val settings: AppSettings = AppSettings(),
-    val runtimeInfo: EngineRuntimeInfo? = null,
+    val runtimeInfo: EngineRuntimeInfo? = null
 )
 
 /**
@@ -29,10 +29,9 @@ data class SettingsUiState(
 class SettingsViewModel(private val container: AppContainer) : ViewModel() {
 
     companion object {
-        fun factory(container: AppContainer): ViewModelProvider.Factory =
-            viewModelFactory {
-                initializer { SettingsViewModel(container) }
-            }
+        fun factory(container: AppContainer): ViewModelProvider.Factory = viewModelFactory {
+            initializer { SettingsViewModel(container) }
+        }
     }
 
     private val _ui = MutableStateFlow(SettingsUiState())
@@ -44,7 +43,7 @@ class SettingsViewModel(private val container: AppContainer) : ViewModel() {
                 _ui.update {
                     it.copy(
                         settings = settings,
-                        runtimeInfo = container.translationManager.runtimeInfo(),
+                        runtimeInfo = container.translationManager.runtimeInfo()
                     )
                 }
             }

@@ -49,8 +49,7 @@ object AndroidUtils {
         context.startActivity(Intent.createChooser(intent, title))
     }
 
-    fun formatDate(timestamp: Long): String =
-        SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault()).format(Date(timestamp))
+    fun formatDate(timestamp: Long): String = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault()).format(Date(timestamp))
 
     fun formatDuration(ms: Long): String = when {
         ms >= 1000 -> "%.1fs".format(ms / 1000f)

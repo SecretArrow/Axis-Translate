@@ -11,10 +11,7 @@ import com.axis.translate.data.settings.ThemeMode
  * when the mode is [ThemeMode.DARK] or the system is in dark mode.
  */
 @Composable
-fun AxisTheme(
-    themeMode: ThemeMode = ThemeMode.SYSTEM,
-    content: @Composable () -> Unit,
-) {
+fun AxisTheme(themeMode: ThemeMode = ThemeMode.SYSTEM, content: @Composable () -> Unit) {
     val darkTheme = when (themeMode) {
         ThemeMode.DARK -> true
         ThemeMode.LIGHT -> false
@@ -25,6 +22,6 @@ fun AxisTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = AxisTypography,
-        content = content,
+        content = content
     )
 }

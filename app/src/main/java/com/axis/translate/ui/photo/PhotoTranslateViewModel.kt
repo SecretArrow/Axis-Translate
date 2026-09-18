@@ -35,7 +35,7 @@ data class PhotoUiState(
     val translating: Boolean = false,
     val error: String? = null,
     val source: Language = Language.byCode("en")!!,
-    val target: Language = Language.byCode("id")!!,
+    val target: Language = Language.byCode("id")!!
 )
 
 /**
@@ -56,7 +56,7 @@ class PhotoTranslateViewModel(private val container: AppContainer) : ViewModel()
                 _uiState.update { state ->
                     state.copy(
                         source = Language.byCode(settings.sourceLanguageCode) ?: state.source,
-                        target = Language.byCode(settings.targetLanguageCode) ?: state.target,
+                        target = Language.byCode(settings.targetLanguageCode) ?: state.target
                     )
                 }
             }
@@ -78,7 +78,7 @@ class PhotoTranslateViewModel(private val container: AppContainer) : ViewModel()
                             translatedFull = null,
                             comparing = CompareMode.ORIGINAL,
                             translating = false,
-                            error = if (ocr.isEmpty) "No text detected in this image." else null,
+                            error = if (ocr.isEmpty) "No text detected in this image." else null
                         )
                     }
                 }
@@ -87,7 +87,7 @@ class PhotoTranslateViewModel(private val container: AppContainer) : ViewModel()
                         it.copy(
                             bitmap = bitmap,
                             translating = false,
-                            error = "Offline OCR is not available.",
+                            error = "Offline OCR is not available."
                         )
                     }
                 }
@@ -108,14 +108,14 @@ class PhotoTranslateViewModel(private val container: AppContainer) : ViewModel()
                         text = text,
                         source = state.source,
                         target = state.target,
-                        inputType = InputType.PHOTO,
-                    ),
+                        inputType = InputType.PHOTO
+                    )
                 )
                 _uiState.update {
                     it.copy(
                         translatedFull = result.translatedText,
                         translatedRegions = result.translatedText.split("\n\n"),
-                        translating = false,
+                        translating = false
                     )
                 }
                 container.historyRepository.add(
@@ -125,8 +125,8 @@ class PhotoTranslateViewModel(private val container: AppContainer) : ViewModel()
                         sourceText = text,
                         translatedText = result.translatedText,
                         inputType = InputType.PHOTO,
-                        durationMs = result.durationMs,
-                    ),
+                        durationMs = result.durationMs
+                    )
                 )
             } catch (cancelled: TranslationException.Cancelled) {
                 _uiState.update { it.copy(translating = false) }
@@ -138,7 +138,7 @@ class PhotoTranslateViewModel(private val container: AppContainer) : ViewModel()
                     it.copy(
                         translating = false,
                         error = error.message
-                            ?: "The local AI engine could not complete the translation.",
+                            ?: "The local AI engine could not complete the translation."
                     )
                 }
             }
@@ -158,8 +158,8 @@ class PhotoTranslateViewModel(private val container: AppContainer) : ViewModel()
                         text = region.text,
                         source = state.source,
                         target = state.target,
-                        inputType = InputType.OCR,
-                    ),
+                        inputType = InputType.OCR
+                    )
                 )
                 _uiState.update { current ->
                     val regions = current.translatedRegions.toMutableList()
@@ -170,7 +170,7 @@ class PhotoTranslateViewModel(private val container: AppContainer) : ViewModel()
                     current.copy(
                         translatedRegions = regions,
                         selectedRegion = index,
-                        translating = false,
+                        translating = false
                     )
                 }
                 container.historyRepository.add(
@@ -180,8 +180,8 @@ class PhotoTranslateViewModel(private val container: AppContainer) : ViewModel()
                         sourceText = region.text,
                         translatedText = result.translatedText,
                         inputType = InputType.OCR,
-                        durationMs = result.durationMs,
-                    ),
+                        durationMs = result.durationMs
+                    )
                 )
             } catch (cancelled: TranslationException.Cancelled) {
                 _uiState.update { it.copy(translating = false) }
@@ -193,7 +193,7 @@ class PhotoTranslateViewModel(private val container: AppContainer) : ViewModel()
                     it.copy(
                         translating = false,
                         error = error.message
-                            ?: "The local AI engine could not complete the translation.",
+                            ?: "The local AI engine could not complete the translation."
                     )
                 }
             }
@@ -216,7 +216,7 @@ class PhotoTranslateViewModel(private val container: AppContainer) : ViewModel()
                 translatedFull = null,
                 comparing = CompareMode.ORIGINAL,
                 translating = false,
-                error = null,
+                error = null
             )
         }
     }
@@ -232,9 +232,8 @@ class PhotoTranslateViewModel(private val container: AppContainer) : ViewModel()
     }
 
     companion object {
-        fun factory(container: AppContainer): ViewModelProvider.Factory =
-            viewModelFactory {
-                initializer { PhotoTranslateViewModel(container) }
-            }
+        fun factory(container: AppContainer): ViewModelProvider.Factory = viewModelFactory {
+            initializer { PhotoTranslateViewModel(container) }
+        }
     }
 }
