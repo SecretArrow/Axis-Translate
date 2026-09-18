@@ -76,12 +76,7 @@
 
         <service
             android:name=".service.FloatingTranslateService"
-            android:exported="false"
-            android:foregroundServiceType="specialUse">
-            <property
-                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="floating_translation_overlay" />
-        </service>
+            android:exported="false" />
 
         <service
             android:name=".service.TranslateTileService"

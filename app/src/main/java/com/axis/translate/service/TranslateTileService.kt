@@ -45,7 +45,8 @@ class TranslateTileService : TileService() {
                 PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
             )
         } else {
-            @Suppress("DEPRECATION")
+            @Suppress("DEPRECATION", "LintManifest")
+            @android.annotation.SuppressLint("StartActivityAndCollapseDeprecated")
             startActivityAndCollapse(intent)
         }
     }
