@@ -29,7 +29,7 @@ import kotlin.math.roundToInt
 class TranslationManager(
     private val engineFactory: () -> TranslationEngine,
     private val modelPathProvider: () -> String?,
-    private val engineConfigProvider: () -> EngineConfig,
+    private val engineConfigProvider: suspend () -> EngineConfig,
     private val textChunker: TextChunker,
     private val promptBuilder: PromptBuilder,
     private val languageDetector: LanguageDetector,

@@ -1,0 +1,128 @@
+# Release — release APKs split per ABI + GitHub Release.
+#
+# Runs automatically when the "E2E" workflow completes successfully on main
+# (workflow_run chaining), on version tags (v*), or manually via workflow_dispatch.
+name: "Release"
+
+on:
+  workflow_run:
+    workflows: ["E2E"]
+    types: [completed]
+    branches: [main]
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Never cancel an in-flight release.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    # Skip when the triggering E2E run failed (tag pushes / manual dispatch always allowed).
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout (full history for release notes)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle (with caching)
+        uses: gradle/actions/setup-gradle@v4
+
+      # Splits configured in app/build.gradle.kts: arm64-v8a, armeabi-v7a,
+      # x86, x86_64 — no universal APK (-Paxis.splitApks=true).
+      - name: Build release APKs (split per ABI)
+        run: >-
+          ./gradlew assembleRelease -Paxis.splitApks=true
+          -Paxis.buildNumber=${{ github.run_number }} --stacktrace
+
+      # app-<abi>-release.apk -> AxisTranslate-v<version>-<abi>.apk (+ SHA256SUMS.txt)
+      - name: Collect and rename split APKs
+        id: collect_apks
+        run: |
+          set -euo pipefail
+          VERSION="1.0.${{ github.run_number }}"
+          OUT_DIR="app/build/outputs/apk/release"
+          shopt -s nullglob
+          count=0
+          for apk in "$OUT_DIR"/*.apk; do
+            base="$(basename "$apk")"
+            base="${base%-unsigned}"
+            stem="${base%.apk}"
+            abi="universal"
+            case "$stem" in
+              app-*-release) abi="${stem#app-}"; abi="${abi%-release}" ;;
+            esac
+            mv "$apk" "$OUT_DIR/AxisTranslate-v${VERSION}-${abi}.apk"
+            count=$((count + 1))
+          done
+          if [ "$count" -eq 0 ]; then
+            echo "::error::No release APKs found in $OUT_DIR — refusing to publish a release"
+            exit 1
+          fi
+          ( cd "$OUT_DIR" && sha256sum "AxisTranslate-v${VERSION}-"*.apk > SHA256SUMS.txt )
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          ls -la "$OUT_DIR"
+
+      - name: Determine release tag
+        id: tag
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            echo "tag=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=v${{ steps.collect_apks.outputs.version }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Guard: publish only when APKs were actually produced.
+      - name: Publish GitHub Release
+        if: ${{ hashFiles('app/build/outputs/apk/release/*.apk') != '' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: Axis Translate ${{ steps.tag.outputs.tag }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          body: |
+            ## Axis Translate ${{ steps.tag.outputs.tag }}
+
+            **Offline AI translation for Android** — all translation, OCR and LLM inference run on your
+            device via llama.cpp. No cloud, no accounts, no telemetry.
+
+            ### Downloads — APKs are split per ABI
+
+            Pick the artifact matching your device:
+
+            | Artifact | Best for |
+            | --- | --- |
+            | `AxisTranslate-v${{ steps.collect_apks.outputs.version }}-arm64-v8a.apk` | **Modern 64-bit devices (recommended)** |
+            | `AxisTranslate-v${{ steps.collect_apks.outputs.version }}-armeabi-v7a.apk` | Older 32-bit ARM devices |
+            | `AxisTranslate-v${{ steps.collect_apks.outputs.version }}-x86.apk` | 32-bit x86 devices |
+            | `AxisTranslate-v${{ steps.collect_apks.outputs.version }}-x86_64.apk` | Emulators / x86_64 devices |
+
+            - No universal APK is published — each artifact contains only the native libraries for its ABI.
+            - Verify downloads against `SHA256SUMS.txt`.
+
+            ### First launch
+
+            - The translation **model is downloaded on first app launch** (the only network usage) and is
+              verified with **SHA-256** before it is activated.
+            - After the model is installed, **all inference runs fully offline** (airplane mode works).
+          files: |
+            app/build/outputs/apk/release/AxisTranslate-v${{ steps.collect_apks.outputs.version }}-*.apk
+            app/build/outputs/apk/release/SHA256SUMS.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

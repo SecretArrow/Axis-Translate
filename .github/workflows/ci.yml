@@ -1,0 +1,100 @@
+# CI — quality gate for Axis Translate.
+#
+# Chain: CI (this file) -> E2E (workflow_run) -> Release (workflow_run).
+# Runs on: push to main, version tags, PRs to main, manual dispatch.
+#
+# Auto-fix: on push events to main, ktlintFormat is run first; if it produces
+# changes they are committed as "style: ktlint auto-fix [auto-fix]" and pushed,
+# and this run ends early (green). A fresh CI run then validates the fix.
+name: "CI"
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# contents: write -> auto-fix commit/push to main.
+# actions: write -> dispatch the fresh validating run after the auto-fix push
+#           (pushes made with GITHUB_TOKEN do not trigger workflows themselves).
+permissions:
+  contents: write
+  actions: write
+
+# Cancel superseded runs on the same ref.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle (with caching)
+        uses: gradle/actions/setup-gradle@v4
+
+      # ktlint auto-fix — push events to main only.
+      #   1. run ktlintFormat (failures tolerated, format is best-effort)
+      #   2. if anything changed -> commit + push "style: ktlint auto-fix [auto-fix]"
+      #      and dispatch a fresh CI run to validate it
+      # Loop guards (this can never loop):
+      #   - this step only runs for event_name == 'push' on refs/heads/main, and
+      #     the dispatched fresh run is a workflow_dispatch event, so it never
+      #     re-enters this step;
+      #   - the head_commit message must not already contain [auto-fix];
+      #   - ktlintFormat is idempotent, so the fresh run finds nothing to fix.
+      - name: ktlint auto-fix (commit style fixes to main)
+        id: ktlint_autofix
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, '[auto-fix]') }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./gradlew ktlintFormat --continue -Paxis.buildNumber=${{ github.run_number }} || true
+          git config user.name "axis-ci-bot"
+          git config user.email "ci@axis-translate.local"
+          git add -A
+          if ! git diff --staged --quiet; then
+            git commit -m "style: ktlint auto-fix [auto-fix]"
+            git push
+            # A push made with GITHUB_TOKEN does not itself trigger a new
+            # workflow run, so dispatch the validating run explicitly
+            # (workflow_dispatch is the one event GITHUB_TOKEN may trigger).
+            gh workflow run ci.yml --ref main
+            echo "pushed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # If the auto-fix pushed, this run ends here (green) — the fresh run
+      # triggered above performs the full validation. Otherwise: full checks.
+      - name: ktlintCheck, Android Lint, unit tests, debug build
+        if: ${{ steps.ktlint_autofix.outputs.pushed != 'true' }}
+        run: >-
+          ./gradlew ktlintCheck lintDebug testDebugUnitTest assembleDebug
+          -Paxis.buildNumber=${{ github.run_number }} --stacktrace
+
+      - name: Upload debug APK
+        if: ${{ steps.ktlint_autofix.outputs.pushed != 'true' && success() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+
+      - name: Upload test/lint reports (on failure)
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-failure-reports
+          path: app/build/reports/**
